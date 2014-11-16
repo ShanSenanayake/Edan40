@@ -31,7 +31,7 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
 stateOfMind botbrain = do
   r<- randomIO :: IO Float
-  rulesApply  [(a,pick r b) | (a,b) <- botbrain]
+  return (rulesApply  [(a,pick r b) | (a,b) <- botbrain])
 
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
