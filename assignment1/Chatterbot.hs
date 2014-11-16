@@ -32,7 +32,7 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind _ = return id
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-rulesApply list p = fromJust(transformationsApply "*" reflect list p)
+rulesApply list p = try (transformationsApply "*" reflect list) p
 
 reflect :: Phrase -> Phrase
 reflect [] = []
