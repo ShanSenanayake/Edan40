@@ -22,8 +22,8 @@ match :: Eq a => a -> [a] -> [a] -> Maybe [a]
 match _ [] [] = Just []
 match _ [] _ = Nothing
 match _ _ [] = Nothing
-match n (x:xs) (y:ys)
-	| x == n = orElse(singleWildcardMatch (x:xs) (y:ys)) (longerWildcardMatch (x:xs) (y:ys))
+match n list1@(x:xs) list2@(y:ys)
+	| x == n = orElse(singleWildcardMatch list1 list2) (longerWildcardMatch list1 list2)
 	| x == y = match n xs ys
 	| otherwise = Nothing
 {- TO BE WRITTEN -}
@@ -34,13 +34,13 @@ singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 singleWildcardMatch (wc:ps) (x:xs) 
 	| isJust (match wc ps xs) = Just [x]
 	| otherwise = Nothing 
-{- TO BE WRITTEN -}
+
 longerWildcardMatch _ [] = Nothing
-longerWildcardMatch (wc:ps) (x:xs) 
-	| isJust(hej) = Just (x:fromJust(hej))
+longerWildcardMatch list@(wc:ps) (x:xs) 
+	| isJust(m) = Just (x:fromJust(m))
 	| otherwise = Nothing
-	where hej = (match wc (wc:ps) xs) 
-{- TO BE WRITTEN -}
+	where m = (match wc list xs) 
+
 
 
 
@@ -64,15 +64,13 @@ matchCheck = matchTest == Just testSubstitutions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply wc f xs (t1,t2) = mmap (substitute wc t2) (mmap f (match wc t1 xs))
+transformationApply wc f xs (t1,t2) = mmap (substitute wc t2) (mmap f $ match wc t1 xs)
 
-
-{- TO BE WRITTEN -}
 
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 transformationsApply _ _ [] _ = Nothing
 transformationsApply wc f (x:xs) ys = orElse(transformationApply wc f ys x) (transformationsApply wc f xs ys)
-{- TO BE WRITTEN -}
+
 

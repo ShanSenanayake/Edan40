@@ -33,12 +33,12 @@ stateOfMind botbrain = do
   return (rulesApply  [(a,pick r b) | (a,b) <- botbrain])
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-rulesApply list = try (transformationsApply "*" reflect list) 
+rulesApply list = try $ transformationsApply "*" reflect list 
 
 reflect :: Phrase -> Phrase
-reflect [] = []
-reflect (s:strings) = (switchWord s (fst a) (snd a)):(reflect strings)
+reflect = foldr (\x acc -> (switchWord x (fst a) (snd a)):acc) []
   where a = unzip reflections
+
 
 
 switchWord :: String -> [String] -> [String] -> String
@@ -80,7 +80,7 @@ prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 
 rulesCompile :: [(String, [String])] -> BotBrain
-rulesCompile list = [(words $ map toLower a ,map words b)| (a,b)<-list]
+rulesCompile = foldr (\(x,y) acc -> (words $ map toLower x ,map words y):acc) [] 
 
 
 
@@ -106,7 +106,6 @@ reduce :: Phrase -> Phrase
 reduce = reductionsApply reductions
 
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
-{- TO BE WRITTEN -}
 reductionsApply list  = fix $ try $ transformationsApply "*" id list 
 
 
