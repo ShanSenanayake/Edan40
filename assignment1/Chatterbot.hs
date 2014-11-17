@@ -33,7 +33,7 @@ stateOfMind botbrain = do
   return (rulesApply  [(a,pick r b) | (a,b) <- botbrain])
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-rulesApply list p = try (transformationsApply "*" reflect list) p
+rulesApply list = try (transformationsApply "*" reflect list) 
 
 reflect :: Phrase -> Phrase
 reflect [] = []
@@ -107,6 +107,6 @@ reduce = reductionsApply reductions
 
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-reductionsApply _ = id
+reductionsApply list  = fix $ try $ transformationsApply "*" id list 
 
 

@@ -66,6 +66,7 @@ matchCheck = matchTest == Just testSubstitutions
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
 transformationApply wc f xs (t1,t2) = mmap (substitute wc t2) (mmap f (match wc t1 xs))
 
+
 {- TO BE WRITTEN -}
 
 
