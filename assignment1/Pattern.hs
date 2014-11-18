@@ -13,7 +13,7 @@ substitute n [] ys = []
 substitute n (x:xs) ys 
 	| n == x = ys++substitute n xs ys
 	| otherwise = x:substitute n xs ys
-{- TO BE WRITTEN -}
+
 
 
 -- Tries to match two lists. If they match, the result consists of the sublist
@@ -26,7 +26,7 @@ match n list1@(x:xs) list2@(y:ys)
 	| x == n = orElse(singleWildcardMatch list1 list2) (longerWildcardMatch list1 list2)
 	| x == y = match n xs ys
 	| otherwise = Nothing
-{- TO BE WRITTEN -}
+
 
 
 -- Helper function to match
