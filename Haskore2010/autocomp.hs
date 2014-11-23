@@ -4,18 +4,19 @@ import Haskore
 data BassStyle = Basic | Calypso | Boogie deriving (Eq)
 data Harmony = Dur | Moll deriving (Eq)
 type Chord = (PitchClass,Harmony)
-type KeyS = Chord
-type ChordProgression = [(Chord,Dur)]
+type Bar = Int
+type ChordProgression = [(PitchClass,Bar)]
 
 majorScale = [0,2,4,5,7,9,11]
-minorScale = [0,1,3,5,7,8,10]
 
-generatePitchScale :: KeyS -> Octave -> Chord -> [Pitch]
-generatePitchScale (tone, Dur) octave (start, _) = map pitch (map ((absPitch (tone,octave))+) (shift (tone,octave) (start,octave) majorScale))
-generatePitchScale (tone, Moll) octave (start, _) = map pitch (map ((absPitch (tone,octave))+) (shift (tone,octave) (start,octave) minorScale))
+generatePitchScale :: Key -> Octave -> PitchClass -> [Pitch]
+generatePitchScale key octave start = map pitch (map ((12*octave + key)+) (shift (abs ((pitchClass start) - key)) majorScale))
 
-shift::Pitch->Pitch -> [Int] ->[Int]
-shift a b scale = map ((absPitch a) - (absPitch b) -) scale
+
+shift::Int -> [Int] ->[Int]
+shift n list@(x:xs) 
+	| n == x = list
+	| otherwise = shift n (xs++[12+x])
 
 bassLine :: BassStyle -> [NoteAttribute]->[Pitch]-> [Music]
 bassLine Basic vol = basicBassLine vol 0
@@ -30,17 +31,18 @@ basicBassLine vol _ m = []
 
 
 calypsoBassLine ::  [NoteAttribute]-> Int-> [Pitch] -> [Music]
-calypsoBassLine vol (-1) m = (hnr):(boogieBassLine vol 0 m)
-calypsoBassLine vol 0 m = (Note (m!!0) qn vol):(boogieBassLine vol 2 m)
-calypsoBassLine vol 2 m = (Note (m!!2) qn vol):(boogieBassLine vol (-1) m)
+calypsoBassLine vol (-1) m = (hnr):(calypsoBassLine vol 0 m)
+calypsoBassLine vol 0 m = (Note (m!!0) qn vol):(calypsoBassLine vol 2 m)
+calypsoBassLine vol 2 m = (Note (m!!2) qn vol):(calypsoBassLine vol (-1) m)
 calypsoBassLine vol _ m = []
 
 
 boogieBassLine ::  [NoteAttribute]-> Int-> [Pitch] -> [Music]
-boogieBassLine vol 0 m = (Note (m!!0) qn vol):(Note (m!!4) qn vol):(calypsoBassLine vol 5 m)
-boogieBassLine vol 5 m = (Note (m!!5) qn vol):(Note (m!!4) qn vol):(calypsoBassLine vol 0 m)
+boogieBassLine vol 0 m = (Note (m!!0) qn vol):(Note (m!!4) qn vol):(boogieBassLine vol 5 m)
+boogieBassLine vol 5 m = (Note (m!!5) qn vol):(Note (m!!4) qn vol):(boogieBassLine vol 0 m)
 boogieBassLine vol _ m = []
 
 
---autoBass :: BassStyle -> Key -> ChordProgression -> Music
-
+autoBass :: BassStyle -> Key -> ChordProgression -> Music
+autoBass style key [(c,d)] = (line (take d (bassLine style [Volume 80] (generatePitchScale key 3 c))))
+autoBass style key ((c,d):prog) = (line (take d (bassLine style [Volume 80] (generatePitchScale key 3 c)))):+:(autoBass style key prog)
