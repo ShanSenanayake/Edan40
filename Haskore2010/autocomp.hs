@@ -1,11 +1,21 @@
 module AutoComp where
-import Haskore
+import Haskore 
 
 data BassStyle = Basic | Calypso | Boogie deriving (Eq)
-data Chord = Major Pitchclass | Minor Pitchclass deriving (Eq)
-
-
+data Harmony = Dur | Moll deriving (Eq)
+type Chord = (PitchClass,Harmony)
+type KeyS = Chord
 type ChordProgression = [(Chord,Dur)]
+
+majorScale = [0,2,4,5,7,9,11]
+minorScale = [0,1,3,5,7,8,10]
+
+generatePitchScale :: KeyS -> Octave -> Chord -> [Pitch]
+generatePitchScale (tone, Dur) octave (start, _) = map pitch (map ((absPitch (tone,octave))+) (shift (tone,octave) (start,octave) majorScale))
+generatePitchScale (tone, Moll) octave (start, _) = map pitch (map ((absPitch (tone,octave))+) (shift (tone,octave) (start,octave) minorScale))
+
+shift::Pitch->Pitch -> [Int] ->[Int]
+shift a b scale = map ((absPitch a) - (absPitch b) -) scale
 
 bassLine :: BassStyle -> [NoteAttribute]->[Pitch]-> [Music]
 bassLine Basic vol = basicBassLine vol 0
@@ -31,4 +41,6 @@ boogieBassLine vol 0 m = (Note (m!!0) qn vol):(Note (m!!4) qn vol):(calypsoBassL
 boogieBassLine vol 5 m = (Note (m!!5) qn vol):(Note (m!!4) qn vol):(calypsoBassLine vol 0 m)
 boogieBassLine vol _ m = []
 
+
+--autoBass :: BassStyle -> Key -> ChordProgression -> Music
 
