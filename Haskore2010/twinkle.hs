@@ -17,7 +17,7 @@
 
  
  -- Main Voice:
- v1a = lmap (fd qn) [c 5, c 5, g 5, g 5, a 5, a 5] :+: g 5 hn v :+: lmap (fd qn) [f 5, f 5, e 5 , e 5, d 5, d 5] :+: c 5 qn v 
+ v1a = lmap (fd qn) [c 5, c 5, g 5, g 5, a 5, a 5] :+: g 5 hn v :+: lmap (fd qn) [f 5, f 5, e 5 , e 5, d 5, d 5] :+: c 5 hn v 
  v1b = lmap (fd qn)    [g 5, g 5, f 5, f 5, e 5, e 5] :+: d 5 hn v
 
  mainVoice = v1a :+: (times 2 v1b) :+: v1a
