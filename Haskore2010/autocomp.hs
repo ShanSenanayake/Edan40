@@ -3,7 +3,7 @@ import Haskore
 
 data BassStyle = Basic | Calypso | Boogie deriving (Eq)
 data Harmony = Dur | Moll deriving (Eq)
-type Chord = (PitchClass,Harmony)
+type Chord = (Int,Int,Int)
 type ChordProgression = [(PitchClass,Dur)]
 
 majorScale = [0,2,4,5,7,9,11]
@@ -45,3 +45,10 @@ boogieBassLine vol _ m = []
 autoBass :: BassStyle -> Key -> ChordProgression -> Music
 autoBass style key [(c,d)] = (bassLine style [Volume 80] d (generatePitchScale key 3 c))
 autoBass style key ((c,d):prog) = (bassLine style [Volume 80] d (generatePitchScale key 3 c)):+:(autoBass style key prog)
+
+
+--autoChord :: Key -> ChordProgression -> Music
+
+getChord :: Key -> PitchClass -> Chord
+getChord key pitch= (pitchClass (fst (scale!!0)),pitchClass (fst (scale!!2)),pitchClass (fst (scale!!4)))
+	where scale = generatePitchScale key 4 pitch
