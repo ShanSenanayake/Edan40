@@ -24,3 +24,6 @@ mainVoice = v1a :+: (times 2 v1b) :+: v1a
 -- Putting it all together:
 twinkle = Instr "piano" (Tempo 1 (mainVoice))
 
+progression1 = [(C,wn),(F,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn)]
+progression2 = [(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn)]
+progression = progression1 :+: progression2 :+: progression1
