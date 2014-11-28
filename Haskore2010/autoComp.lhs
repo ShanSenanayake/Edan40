@@ -4,7 +4,7 @@
 \usepackage[english]{babel}
 \usepackage{moreverb}
 
-\title{Functional Music \\ EDAN40 Functional Programming}
+\title{Assignment 2: Functional Music \\ EDAN40 Functional Programming}
 \date{\today}
 \author{Fredrik Paulsson \\ dat11fp1@student.lu.se \and Shan Senanayake \\ dat11sse@student.lu.se}
 %\setcounter{secnumdepth}{5}
@@ -13,10 +13,24 @@
 \maketitle
 %\tableofcontents
 
+\section{Introduction}
+In this assigment we have constructed a program in Literate Haskell that creates the accompaniment for a given melody and chord progression. The accompaniment consists of two parts a bass line and a chord voicing. There are three bass lines to choose between, namely, basic bass, calypso bass and boogie bass. The chord voicing automatically generates the "best" version of a chord in the chord progression. The "best" chord is determined by looking at the notes in the triad of the chord an on the chord played previously.
+
+This report will serve as documentation and explanation of the program that we have constructed.
+
+\section{Haskore}
+Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell.
 \begin{verbatimtab}
 
 > module AutoComp where
 > import Haskore 
+
+\end{verbatimtab}
+In the first line of the code above we simply define the source code as our module AutoComp. The second line simply loads Haskore so that we can utilize the library.
+
+\section{Types}
+We have defined some types in our program in order to make the types of functions more easily read and understandable.
+\begin{verbatimtab}
 
 > data BassStyle = Basic | Calypso | Boogie deriving (Eq)
 > type MusicalKey = (PitchClass,Mode)
