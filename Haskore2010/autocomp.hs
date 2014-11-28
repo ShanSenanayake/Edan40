@@ -2,12 +2,11 @@ module AutoComp where
 import Haskore 
 
 data BassStyle = Basic | Calypso | Boogie deriving (Eq)
-data Harmony = Dur | Moll deriving (Eq)
-type Chord = (Int,Int,Int)
+type MusicalKey = (PitchClass,Mode)
+type Chord = [Int]
 type ChordProgression = [(PitchClass,Dur)]
 
 majorScale = [0,2,4,5,7,9,11]
-chordRange = [(E,4),(F,4),(G,4),(A,4),(B,4),(C,5),(D,5),(E,5),(F,5),(G,5)]
 
 generatePitchScale :: Key -> Octave -> PitchClass -> [Pitch]
 generatePitchScale key octave start = map pitch (map ((12*octave + key)+) (shift (abs ((pitchClass start) - key)) majorScale))
@@ -44,15 +43,65 @@ boogieBassLine _ vol m = []
 
 
 autoBass :: BassStyle -> Key -> ChordProgression -> Music
-autoBass style key [(c,d)] = (bassLine style d [Volume 80] (generatePitchScale key 3 c))
-autoBass style key ((c,d):prog) = (bassLine style d [Volume 80] (generatePitchScale key 3 c)):+:(autoBass style key prog)
+autoBass style key [(c,d)] = (bassLine style d [Volume 50] (generatePitchScale key 3 c))
+autoBass style key ((c,d):prog) = (bassLine style d [Volume 50] (generatePitchScale key 3 c)):+:(autoBass style key prog)
 
 
---autoChord :: Key -> ChordProgression -> Music
 
-getChord :: Key -> PitchClass -> Chord
-getChord key pitch= (pitchClass (fst (scale!!0)),pitchClass (fst (scale!!2)),pitchClass (fst (scale!!4)))
+getChords :: [Pitch]-> [[Pitch]]
+getChords list 
+	| (length list) >= 3 = (take 3 list):(getChords (tail list))
+	| otherwise = []
+
+getBasicTriad :: Key -> PitchClass -> Chord
+getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass (fst (scale!!2)),pitchClass (fst (scale!!4))]
 	where scale = generatePitchScale key 4 pitch
 
+generateChordRange :: (Int,Int) ->Chord -> Int -> [Pitch]
+generateChordRange range@(low,high) ch itr 
+	| itr<low = generateChordRange range ch (itr+1)
+	| low<= itr && itr <= high = (checkPitch ch itr)++(generateChordRange range ch (itr+1))
+	| otherwise = []
 
---optimiseChord :: Chord -> Chord -> Music
+checkPitch :: Chord->Int->[Pitch]
+checkPitch list itr 
+	| elem (itr `mod` 12) list = [pitch itr]
+	| otherwise = []
+
+optimiseLength :: [Pitch] -> [[Pitch]] -> [Pitch]
+optimiseLength prev chords =  snd (iterateDiff (zip (scoreChord prev chords) chords))
+
+
+iterateDiff:: [(Int,[Pitch])] -> (Int,[Pitch])
+iterateDiff [(score,ch)] = (score,ch)
+iterateDiff (x:xs) = try x (iterateDiff xs)
+
+
+scoreChord:: [Pitch] -> [[Pitch]] -> [Int]
+scoreChord prev chords = [abs  ((sum  (map absPitch prev)) - (sum  (map absPitch next))) | next <- chords]
+
+try :: (Int,[Pitch]) -> (Int,[Pitch]) -> (Int,[Pitch])
+try first@(a,b) second@(c,d)
+	| a>c = second
+	| otherwise = first
+
+chordToMusic:: ([Pitch],Dur) -> Music
+chordToMusic ([],d) = Rest 0
+chordToMusic ((x:xs),d) = (Note x d [Volume 50]):=:(chordToMusic (xs,d))
+
+
+generateMusicChord :: Key -> ChordProgression -> [Pitch] -> [Music]
+generateMusicChord key [(c,d)] prev = [chordToMusic(optimiseLength prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)]
+generateMusicChord key ((c,d):prog) prev = (chordToMusic(next):(generateMusicChord key prog (fst next)))
+	where next = (optimiseLength prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)
+
+autoChord :: Key -> ChordProgression -> Music
+autoChord key ((c,d):prog) = line ((chordToMusic(first)):(generateMusicChord key prog (fst first)))
+	where first = ((head (getChords (generateChordRange (52,67) (getBasicTriad key c) 0))),d)
+
+mKeyToKey :: MusicalKey -> Key
+mKeyToKey (p,Major) = (pitchClass p)
+mKeyToKey (p,Minor) = ((pitchClass p) + 3) `mod` 12
+
+autoComp :: BassStyle -> MusicalKey -> ChordProgression->Music
+autoComp style mKey progression = (autoBass style (mKeyToKey mKey) progression):=:(autoChord (mKeyToKey mKey) progression)

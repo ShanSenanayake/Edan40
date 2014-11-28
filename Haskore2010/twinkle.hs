@@ -23,7 +23,10 @@
  mainVoice = v1a :+: (times 2 v1b) :+: v1a
 
 -- Putting it all together:
- twinkle = Instr "piano" (Tempo 2 (mainVoice))
+ twinkle = Instr "piano" (mainVoice)
  progression1 = [(C,wn),(F,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn)]
  progression2 = [(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn)]
  progression = progression1 ++ progression2 ++ progression1
+ twinkleBasic   = twinkle :=: autoComp Basic (C, Major) progression
+ twinkleCalypso = twinkle :=: autoComp Calypso (C, Major) progression
+ twinkleBoogie  = twinkle :=: autoComp Boogie (C, Major) progression
