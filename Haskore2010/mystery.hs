@@ -22,14 +22,14 @@
  v1 = v1a :+: v1b
 
  v2a = c 5 hn v :+: lmap(fd en) [g 4, a 4] :+: lmap(fd qn) [c 5, e 5] :+: d 5 hn v :+: lmap(fd en) [b 5, a 5] :+: lmap(fd qn) [g 5, f 5]
- v2b = e 5 hn v :+: lmap(fd en) [e 5, e 5, f 5, g 5, f 5] :+: e 5 hn v 
-
- mainVoice = v1a 
+ v2b = e 5 hn v :+: lmap(fd en) [e 5, e 5, f 5, g 5, f 5] :+: e 5 hn v :+: d 5 en v :+: d 5 qn v
+ v2 = v2a :+: v2b
+ mainVoice = (times 2 v1):+:(times 2 v2):+:(times 2 v1)
 -- Putting it all together:
- twinkle = Instr "piano" (mainVoice)
- progression1 = [(C,wn),(F,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn)]
- progression2 = [(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn)]
+ mystery = Instr "piano" (mainVoice)
+ progression1 = [(C,bn),(G,bn),(C,bn),(G,bn)]
+ progression2 = [(C,bn),(G,bn),(C,bn),(G,bn),(C,bn),(G,bn),(C,bn),(G,bn)]
  progression = progression1 ++ progression2 ++ progression1
- twinkleBasic   = twinkle :=: autoComp Basic (C, Major) progression
- twinkleCalypso = twinkle :=: autoComp Calypso (C, Major) progression
- twinkleBoogie  = twinkle :=: autoComp Boogie (C, Major) progression
+ mysteryBasic   = mystery :=: autoComp Basic (C, Major) progression
+ mysteryCalypso = mystery :=: autoComp Calypso (C, Major) progression
+ mysteryBoogie  = mystery :=: autoComp Boogie (C, Major) progression
