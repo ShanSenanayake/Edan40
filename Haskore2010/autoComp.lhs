@@ -110,9 +110,12 @@ To know how long a certain bassline should play in a certain scale we needed an 
 \begin{verbatimtab}
 
 > bassLine :: BassStyle ->Dur -> [NoteAttribute]->Scale-> Music
-> bassLine Basic dur vol = line . take (ceiling  (2*  (rtof dur))) . basicBassLine 0 vol
-> bassLine Calypso dur vol = line . take (ceiling(8*(rtof dur))) . calypsoBassLine (-1) vol
-> bassLine Boogie dur vol =line . take (ceiling(8*(rtof dur))) . boogieBassLine 0 vol
+> bassLine Basic dur vol = line . take (ceiling  (2*  (rtof dur))) 
+>	. basicBassLine 0 vol
+> bassLine Calypso dur vol = line . take (ceiling(8*(rtof dur))) 
+>	. calypsoBassLine (-1) vol
+> bassLine Boogie dur vol =line . take (ceiling(8*(rtof dur))) 
+>	. boogieBassLine 0 vol
 
 \end{verbatimtab}
 The function above takes four arguments. The first argument is used to decide which bassline should be played. The second argument determines for how long a bassline should be played. Depending on the bassline we take different amounts of notes since all of them do not return the same thing. Since \texttt(Dur) is a \texttt{Ratio Int} we need the function \texttt{rtof} which takes a \texttt{Ratio Int} and returns a float, using this we can convert to an \texttt{Int} using the function \texttt{ceiling} so the function \texttt{take} will work. \\ 
@@ -124,7 +127,8 @@ To create a bassline we see that we need a scale, to generate this scale takes u
 \begin{verbatimtab}
 
 > generatePitchScale :: Key -> Octave -> PitchClass -> Scale
-> generatePitchScale key octave start = map pitch (map ((12*octave + key)+) (shift (abs ((pitchClass start) - key)) majorScale))
+> generatePitchScale key octave start = map pitch (map 
+>	((12*octave + key)+) (shift (abs ((pitchClass start) - key)) majorScale))
 
 \end{verbatimtab}
 This function takes a \texttt{Key}, which is a Haskore type which represents the \texttt{PitchClass} in an \texttt{Int}, and \texttt{Octave} and a \texttt{PitchClass} and returns a \texttt{Scale}. In the assigment we were given a bunch of different scales to apply depending on where on the scale the tone for a chord was. We decided to disregard most of this since the only thing the "different" scales gave was a shifting of the orginal scale starting on the tone for a certain scale. To obtain this we decided to make a helper function shift.
@@ -145,8 +149,10 @@ Using all of the functions above we can combine them and create the \texttt{auto
 \begin{verbatimtab}
 
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music
-> autoBass style key [(c,d)] = (bassLine style d [Volume 50] (generatePitchScale key 3 c))
-> autoBass style key ((c,d):prog) = (bassLine style d [Volume 50] (generatePitchScale key 3 c)):+:(autoBass style key prog)
+> autoBass style key [(c,d)] = (bassLine style d [Volume 50] 
+>	(generatePitchScale key 3 c))
+> autoBass style key ((c,d):prog) = (bassLine style d [Volume 50] 
+>	(generatePitchScale key 3 c)):+:(autoBass style key prog)
 
 \end{verbatimtab}
 
@@ -161,13 +167,15 @@ Using all of the functions above we can combine them and create the \texttt{auto
 >	 | otherwise = []
 
 > getBasicTriad :: Key -> PitchClass -> Chordint
-> getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass (fst (scale!!2)),pitchClass (fst (scale!!4))]
+> getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass 
+>	(fst (scale!!2)),pitchClass (fst (scale!!4))]
 >	 where scale = generatePitchScale key 4 pitch
 
 > generateChordRange :: Range -> Chordint  -> Int -> Chord
 > generateChordRange range@(low,high) ch itr 
 >	 | itr<low = generateChordRange range ch (itr+1)
->	 | low<= itr && itr <= high = (checkPitch ch itr)++(generateChordRange range ch (itr+1))
+>	 | low<= itr && itr <= high = (checkPitch ch itr)++
+>	(generateChordRange range ch (itr+1))
 >	 | otherwise = []
 
 > checkPitch :: Chordint ->Int->Chord
@@ -176,7 +184,8 @@ Using all of the functions above we can combine them and create the \texttt{auto
 >	 | otherwise = []
 
 > optimiseLength :: Chord -> [Chord] -> Chord
-> optimiseLength prev chords =  snd (iterateDiff (zip (scoreChord prev chords) chords))
+> optimiseLength prev chords =  snd (iterateDiff 
+>	(zip (scoreChord prev chords) chords))
 
 
 > iterateDiff:: [(Int,Chord)] -> (Int,Chord)
@@ -185,7 +194,8 @@ Using all of the functions above we can combine them and create the \texttt{auto
 
 
 > scoreChord:: Chord -> [Chord] -> [Int]
-> scoreChord prev chords = [abs  ((sum  (map absPitch prev)) - (sum  (map absPitch next))) | next <- chords]
+> scoreChord prev chords = [abs  ((sum  (map absPitch prev)) - 
+>	(sum  (map absPitch next))) | next <- chords]
 
 > try :: (Int,Chord) -> (Int,Chord) -> (Int,Chord)
 > try first@(a,b) second@(c,d)
@@ -198,20 +208,26 @@ Using all of the functions above we can combine them and create the \texttt{auto
 
 
 > generateMusicChord :: Key -> ChordProgression -> Chord -> [Music]
-> generateMusicChord key [(c,d)] prev = [chordToMusic(optimiseLength prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)]
-> generateMusicChord key ((c,d):prog) prev = (chordToMusic(next):(generateMusicChord key prog (fst next)))
->	 where next = (optimiseLength prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)
+> generateMusicChord key [(c,d)] prev = [chordToMusic(optimiseLength 
+>	prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)]
+> generateMusicChord key ((c,d):prog) prev = (chordToMusic(next):
+>	(generateMusicChord key prog (fst next)))
+>	 where next = (optimiseLength prev (getChords (generateChordRange (52,67) 
+>				(getBasicTriad key c) 0)),d)
 
 > autoChord :: Key -> ChordProgression -> Music
-> autoChord key ((c,d):prog) = line ((chordToMusic(first)):(generateMusicChord key prog (fst first)))
->	 where first = ((head (getChords (generateChordRange (52,67) (getBasicTriad key c) 0))),d)
+> autoChord key ((c,d):prog) = line ((chordToMusic(first)):
+>	(generateMusicChord key prog (fst first)))
+>	 where first = ((head (getChords (generateChordRange (52,67) 
+>				(getBasicTriad key c) 0))),d)
 
 > mKeyToKey :: MusicalKey -> Key
 > mKeyToKey (p,Major) = (pitchClass p)
 > mKeyToKey (p,Minor) = ((pitchClass p) + 3) `mod` 12
 
 > autoComp :: BassStyle -> MusicalKey -> ChordProgression->Music
-> autoComp style mKey progression = (autoBass style (mKeyToKey mKey) progression):=:(autoChord (mKeyToKey mKey) progression)
+> autoComp style mKey progression = (autoBass style (mKeyToKey mKey) 
+>	progression):=:(autoChord (mKeyToKey mKey) progression)
 
 \end{verbatimtab}
 
