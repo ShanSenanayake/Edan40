@@ -170,7 +170,7 @@ The second part of our program was to generate a chord voicing to the given chor
 
 The \texttt{getChords} function takes one argument that has the type \texttt{Chord} and consists of a list of all notes that a certain chord can be built of. The function generates a list that contains a selection of the tightest triads that can be used to play the chord.
 
-\beigin{verbatimtab}
+\begin{verbatimtab}
 
 > getBasicTriad :: Key -> PitchClass -> Chordint
 > getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass 
