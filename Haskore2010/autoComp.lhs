@@ -160,7 +160,7 @@ Using all of the functions above we can combine them and create the \texttt{auto
 >	(generatePitchScale key 3 c)):+:(autoBass style key prog)
 
 \end{verbatimtab}
-
+The \texttt{autoBass} function takes all the functions above and applies it to the \textt{Chordprogression} for each individual "chord" and then combines it all to \texttt{Music}.
 \section{Chord Voicing}
 The second part of our program was to generate a chord voicing to the given chord progression. Since a chord consists of three different tones and we had to choose the best one according to a set of rules made the task a bit more challenging. To abide by all the rules as much as possible we have a bunch of subfunctions.
 \begin{verbatimtab}
