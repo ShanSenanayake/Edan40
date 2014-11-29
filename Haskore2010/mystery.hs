@@ -17,12 +17,13 @@
 
 
  -- Main Voice:
- v1a = g 4 hn v :+: g 4 qn v :+: lmap(fd en) [e 4, f 4] :+: lmap(fd en) [g 4, f 4, e 4, c 4] 
- v1b = d 4 hn v :+: d 4 qn v :+: lmap(fd en) [d 4, e 4, f 4, e 4, d 4, c 4]:+:lmap(fd qn) [d 4 , e 4]
+ --v1a = g 4 qn v :+: g 4 sn v :+: lmap(fd en) [e 4, f 4] :+: lmap(fd en) [g 4, f 4, e 4, c 4] 
+ v1a = g 4 qn v :+:lmap(fd sn) [g 4, e 4] :+: f 4 en v:+: lmap(fd en) [g 4, f 4, e 4, c 4] 
+ v1b = d 4 qn v :+: d 4 en v :+: lmap(fd sn) [d 4, e 4, f 4, e 4, d 4, c 4]:+:lmap(fd en) [d 4 , e 4]
  v1 = v1a :+: v1b
 
- v2a = c 5 hn v :+: lmap(fd en) [g 4, a 4] :+: lmap(fd qn) [c 5, e 5] :+: d 5 hn v :+: lmap(fd en) [b 5, a 5] :+: lmap(fd qn) [g 5, f 5]
- v2b = e 5 hn v :+: lmap(fd en) [e 5, e 5, f 5, g 5, f 5] :+: e 5 hn v :+: d 5 en v :+: d 5 qn v
+ v2a = c 5 hn v :+: lmap(fd sn) [g 4, a 4] :+: c 5 en v :+: e 5 en v :+: d 5 hn v :+: lmap(fd sn) [b 5, a 5] :+: g 5 en v :+: f 5 en v 
+ v2b =  e 5 hn v:+: lmap(fd en) [e 5, e 5, f 5, g 5, f 5] :+: e 5 hn v :+: lmap(fd qn) [d 5, d 5]
  v2 = v2a :+: v2b
  mainVoice = (times 2 v1):+:(times 2 v2):+:(times 2 v1)
 -- Putting it all together:
