@@ -20,11 +20,11 @@ This report will serve as documentation and explanation of the program that we h
 \section{Haskore}
 Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell. Since this assignment is built on Haskore some Haskore datatypes and functionally has to be explained before one can understand our program. \\
 \begin{description}
-\item{PitchClass} is a datatype which represents the twelve basic tones for music.
-\item{Octave} is a type that contains an \texttt{Int} which represents which octave the tone belongs to, that means which overtone the original tone is.
-\item{Pitch} is a type that contains a tuple of \texttt{(PitchClass,Octave)}. \texttt{Pitch} explains exactly which tone to take.
-\item{AbsPitch} is a type that contains an  \texttt{Int} which represents \texttt{Pitch} in a number.
-\item{Music} is a datatype which represents music. This type will be exaplained in more detail.
+\item{\texttt{PitchClass}} is a datatype which represents the twelve basic tones for music.
+\item{\texttt{Octave}} is a type that contains an \texttt{Int} which represents which octave the tone belongs to, that means which overtone the original tone is.
+\item{\texttt{Pitch}} is a type that contains a tuple of \texttt{(PitchClass,Octave)}. \texttt{Pitch} explains exactly which tone to take.
+\item{\texttt{AbsPitch}} is a type that contains an  \texttt{Int} which represents \texttt{Pitch} in a number.
+\item{\texttt{Music}} is a datatype which represents music. This type will be exaplained in more detail.
 \end{description}
 
 \subsection{Music}
@@ -38,8 +38,11 @@ The \texttt{Music} datatype in Haskore is what glues the music in our program to
 \item{\texttt{Tempo  (Ratio Int) Music)}} which sets the tempo of the \texttt{Music} object applied. The tempo of the supplied \texttt{Music} object is scaled by a factor that is denoted by the \texttt{Rati Int}.
 \item{\texttt{Instr  IName Music}} sets which instrument that the supplied \texttt{Music} object is to be played on. The type of \texttt{IName} is simply \texttt{String}
 \end{description}
-As stated above there are a few more things that det \texttt{Music} datatype can do but we have only used the ones listed above.
+As stated above there are a few more things that det \texttt{Music} datatype can do but we have only used the ones listed here.
 Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell.
+
+
+
 \begin{verbatimtab}
 
 > module AutoComp where
@@ -65,12 +68,12 @@ We have defined some types in our program in order to make the types of function
 
 \end{verbatimtab}
 \begin{description}
-\item{BassStyle} this type is used along with pattern matching to determine which bassline to play. We were given three different bassline to code therefore we chose to have three different values to our the datatype \textt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}.
-\item{Scale} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone (more explaination in the generatePitchScale).
-\item{majorScale} this is the orgin scale of the key, this is the only scale we will need and it will be explained more in generatePitchScale.
-\item{Chord} is a list of three \texttt{Pitch} objects which determines a Chord.
-\item{ChordProgresson} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have 
-\item{Range} is a tuple of two \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
+\item{\texttt{BassStyle}} this type is used along with pattern matching to determine which bassline to play. We were given three different bassline to code therefore we chose to have three different values to our the datatype \texttt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}.
+\item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone (more explaination in the \texttt{generatePitchScale}).
+\item{\texttt{majorScale}} this is the orgin scale of the key, this is the only scale we will need and it will be explained more in \texttt{generatePitchScale}.
+\item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a Chord.
+\item{\texttt{ChordProgresson}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have 
+\item{\texttt{Range}} is a tuple of two \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
 \item{}
 \end{description}
 
@@ -100,7 +103,7 @@ The first task of our program was to genereate three types of basslines dependin
 > boogieBassLine _ vol m = []
 
 \end{verbatimtab}
-The three bassline functions takes three arguments and \texttt{Int} a list of \texttt{NoteAttribute} and a \texttt{Scale}. The first argument takes a index of the \texttt{Scale} and makes a music object out of it, if the index is negative then create a \texttt{Rest}. The second argument decides the volume of the music object. The third argument says which scale the bassline should play in. \\
+The three bassline functions takes three arguments an \texttt{Int}, a list of \texttt{NoteAttribute} and a \texttt{Scale}. The first argument takes a index of the \texttt{Scale} and makes a music object out of it, if the index is negative then it creates a \texttt{Rest}. The second argument decides the volume of the music object. The third argument says which scale the bassline should play in. \\
 To know how long a certain bassline should play in a certain scale we needed an above function which decides how many elements take.
 \begin{verbatimtab}
 
