@@ -22,21 +22,24 @@ This report will serve as documentation and explanation of the program that we h
 Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell. Since this assignment is built on Haskore some Haskore datatypes and functionally has to be explained before one can understand our program. \\
 \begin{description}
 \item{PitchClass} is a datatype which represents the twelve basic tones for music.
-\item{Octave} is a type that contains an \texttt{Int} which represtens which octave the tone belongs to, that means which overtone the original tone is.
-\item{Pitch} is a type that contains a tuple of \texttt{(PitchClass,Octave)}. Pitch explains exactly which tone to take.
-\item{AbsPitch} is a type that contains an  \texttt{Int} which represents Pitch in a number.
-\item{Music} is a datatype which represents music.
+\item{Octave} is a type that contains an \texttt{Int} which represents which octave the tone belongs to, that means which overtone the original tone is.
+\item{Pitch} is a type that contains a tuple of \texttt{(PitchClass,Octave)}. \texttt{Pitch} explains exactly which tone to take.
+\item{AbsPitch} is a type that contains an  \texttt{Int} which represents \texttt{Pitch} in a number.
+\item{Music} is a datatype which represents music. This type will be exaplained in more detail.
 \end{description}
 
 \subsection{Music}
 The \texttt{Music} datatype in Haskore is what glues the music in our program together. This datatype is quite complex and it can consist of severa different structures. We will only describe the ones that we have used and they are the following:
 
-\begin{itemize}
-\item{Note} Which is paired with a \textt{Pitch} and \texttt{Dur} and \texttt{[NoteAttribute]}. \textt{Pitch} defines the exact tone of the note, \texttt{Dur} is the length that the note should be played and it is defined as a number of whole notes. The type of \texttt{Dur} is \texttt{Ratio Int}.
-
-\end{itemize}
-
-The rest of the functions/types will be explained when they show up.
+\begin{description}
+\item{\texttt{Note}} which is paired with a \texttt{Pitch} and \texttt{Dur} and  a list of \texttt{NoteAttribute}. \texttt{Pitch} defines the exact tone of the note, \texttt{Dur} is the length that the note should be played and it is defined as a number of whole notes. The type of \texttt{Dur} is \texttt{Ratio Int}. \texttt{NoteAttribute} defines some values that defines the notion or musical interpretation that should apply to the note. The only \texttt{NoteAttribute} we have used is to set the volume of the note. For example \texttt{Volume 80}.
+\item{\texttt{Rest}} which is paired with a \texttt{Dur} and defines a silent note that should be played as long as \texttt{Dur} specifies.
+\item{\texttt{Music :+: Music}} which denotes a sequential composition. This means the \texttt{Music} that is created consists of the first \texttt{Music} object played before the second \texttt{Music} object. For example, if the two \texttt{Music} objects denotes two object of the type \texttt{Note} then the \texttt{Music} object created by the sequential composition is those two notes played after each other.
+\item{\texttt{Music :=: Music}} denotes parallell composition. The \texttt{Music} object created by the parallell composition consists of the other two \texttt{Music} notes played in parallell. For example, a chord consists of three notes played in parallell and thus three \texttt{Music} objects of type \texttt{Note} compositioned in parallell.
+\item{\texttt{Tempo  (Ratio Int) Music)}} which sets the tempo of the \texttt{Music} object applied. The tempo of the supplied \texttt{Music} object is scaled by a factor that is denoted by the \texttt{Rati Int}.
+\item{\texttt{Instr  IName Music}} sets which instrument that the supplied \texttt{Music} object is to be played on. The type of \texttt{IName} is simply \texttt{String}
+\end{description}
+As stated above there are a few more things that det \texttt{Music} datatype can do but we have only used the ones listed above.
 \begin{verbatimtab}
 
 > module AutoComp where
