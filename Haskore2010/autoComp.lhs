@@ -71,7 +71,7 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{BassStyle}} this type is used along with pattern matching to determine which bassline to play. We were given three different bassline to code therefore we chose to have three different values to our the datatype \texttt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}.
 \item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone (more explaination in the \texttt{generatePitchScale}).
 \item{\texttt{majorScale}} this is the orgin scale of the key, this is the only scale we will need and it will be explained more in \texttt{generatePitchScale}.
-\item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a Chord.
+\item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a chord.
 \item{\texttt{ChordProgresson}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have 
 \item{\texttt{Range}} is a tuple of two \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
 \item{}
@@ -104,7 +104,7 @@ The first task of our program was to generate three types of bass lines dependin
 
 \end{verbatimtab}
 The three bassline functions takes three arguments an \texttt{Int}, a list of \texttt{NoteAttribute} and a \texttt{Scale}. The first argument is an index used in the \texttt{Scale} and makes a music object out of it, if the index is negative then it creates a \texttt{Rest}. The second argument decides the volume of the music object. The third argument says which scale the bassline should play in. \\
-To know how long a certain bassline should play in a certain scale we needed an above function which decides how many elements take.
+To know how long a certain bassline should play in a certain scale we needed an function which decides how many elements take. The function is defined below.
 \begin{verbatimtab}
 
 > bassLine :: BassStyle ->Dur -> [NoteAttribute]->Scale-> Music
