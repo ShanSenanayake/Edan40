@@ -40,6 +40,9 @@ The \texttt{Music} datatype in Haskore is what glues the music in our program to
 \item{\texttt{Instr  IName Music}} sets which instrument that the supplied \texttt{Music} object is to be played on. The type of \texttt{IName} is simply \texttt{String}
 \end{description}
 As stated above there are a few more things that det \texttt{Music} datatype can do but we have only used the ones listed above.
+=======
+Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell.
+>>>>>>> parent of b392a22... Starting documentation
 \begin{verbatimtab}
 
 > module AutoComp where
@@ -54,19 +57,28 @@ We have defined some types in our program in order to make the types of function
 
 > data BassStyle = Basic | Calypso | Boogie deriving (Eq)
 > type Scale = [Pitch]
+> majorScale = [0,2,4,5,7,9,11]
+> type ChordProgression = [(PitchClass,Dur)]
 > type Chord = [Pitch]
 > type Range = (Int,Int)
 > type MusicalKey = (PitchClass,Mode)
 > type Chordint = [Int]
-> type ChordProgression = [(PitchClass,Dur)]
-> majorScale = [0,2,4,5,7,9,11]
+
+
 
 \end{verbatimtab}
-The types will be explained as we encounter them in our program.
+\begin{description}
+\item{BassStyle} this type is used along with pattern matching to determine which bassline to play. We were given three different bassline to code therefore we chose to have three different values to our the datatype \textt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}.
+\item{Scale} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone (more explaination in the generatePitchScale).
+\item{majorScale} this is the orgin scale of the key, this is the only scale we will need and it will be explained more in generatePitchScale.
+\item{Chord} is a list of three \texttt{Pitch} objects which determines a Chord.
+\item{ChordProgresson} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} 
+\item{Range} is a tuple of two \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
+\item{}
+\end{description}
 
 \section{BassLine}
-The first task of our program was to genereate three types of basslines depending on user input. This is where the datatype \texttt{Bassline} comes into play, this type is used along with pattern matching to determine which bassline to play. We were given three different bassline to code therefore we chose to have three different values to our the datatype \texttt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}. \\
-To generate thease three basslines we decided to make three functions which returns infinite lists of the three basslines so we could take how many beats per bar we needed in the song.
+The first task of our program was to genereate three types of basslines depending on userinput. To generate thease three basslines we decided to make three functions which returns infinite lists of the three basslines.
 \begin{verbatimtab}
 
 
@@ -89,9 +101,8 @@ To generate thease three basslines we decided to make three functions which retu
 > boogieBassLine _ vol m = []
 
 \end{verbatimtab}
-Looking at the type declaration
-
-
+The three bassline functions takes three arguments and \texttt{Int} a list of \texttt{NoteAttribute} and a \texttt{Scale}. The first argument takes a index of the \texttt{Scale} and makes a music object out of it, if the index is negative then create a \texttt{Rest}. The second argument decides the volume of the music object. The third argument says which scale the bassline should play in. \\
+To know how long a certain bassline should play in a certain scale we needed an above function which decides how many elements take.
 \begin{verbatimtab}
 
 > bassLine :: BassStyle ->Dur -> [NoteAttribute]->Scale-> Music
@@ -99,11 +110,22 @@ Looking at the type declaration
 > bassLine Calypso dur vol = line . take (ceiling(8*(rtof dur))) . calypsoBassLine (-1) vol
 > bassLine Boogie dur vol =line . take (ceiling(8*(rtof dur))) . boogieBassLine 0 vol
 
+\end{verbatimtab}
+The function above takes four arguments. The first argument is used to decide which bassline should be played. The second argument determines for how long a bassline should be played. Depending on the bassline we take different amounts of notes since all of them do not return the same thing. Since \texttt(Dur) is a \texttt{Ratio Int} we need the function \texttt{rtof} which takes a \texttt{Ratio Int} and returns a float, using this we can convert to an \texttt{Int} using the function \texttt{ceiling} so the function \texttt{take} will work. \\ 
+The third argument decides the volume of the bassline and finally the fourth argument decides which scale the bassline should be played in.\\
+To create a bassline we see that we need a scale, to generate this scale takes us to the next function.
 
+
+
+\begin{verbatimtab}
 
 > generatePitchScale :: Key -> Octave -> PitchClass -> Scale
 > generatePitchScale key octave start = map pitch (map ((12*octave + key)+) (shift (abs ((pitchClass start) - key)) majorScale))
 
+\end{verbatimtab}
+This function takes a \texttt{Key}, which is a Haskore type which represents the \texttt{PitchClass} in an \texttt{Int}, and \texttt{Octave} and a \texttt{PitchClass} and returns a \texttt{Scale}. In the assigment we were given a bunch of different scales to apply depending on where on the scale the tone for a chord was. We decided to disregard most of this since the only thing the "different" scales gave was a shifting of the orginal scale starting on the tone for a certain scale. To obtain this we decided to make a helper function shift.
+
+\begin{verbatimtab}
 
 > shift::Int -> [Int] ->[Int]
 > shift n list@(x:xs) 
@@ -111,57 +133,67 @@ Looking at the type declaration
 >	 | otherwise = shift n (xs++[12+x])
 
 
+\end{verbatimtab}
+The function shift takes the original scale (in every case the majorScale defined above) and shifts it until it hits the current tone. Since the original scale determines how many steps from the orgin tone (which is the key) it takes, we had to subtract the orgin tone with our new tone to get the differnece and then shift the list until it finds it. This gives us a "new" scale which we can apply to the orgin tone and get a scale which begins with the new tone. \\
+When the shifting is done we take the key in the correct octave inputted above to get a suffient scale.\\
+Using all of the functions above we can combine them and create the \texttt{autoBass} function.
 
+\begin{verbatimtab}
 
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music
 > autoBass style key [(c,d)] = (bassLine style d [Volume 50] (generatePitchScale key 3 c))
 > autoBass style key ((c,d):prog) = (bassLine style d [Volume 50] (generatePitchScale key 3 c)):+:(autoBass style key prog)
 
+\end{verbatimtab}
 
 
-> getChords :: Chord-> [Chord]
+
+\begin{verbatimtab}
+
+
+> getChords :: [Pitch]-> [[Pitch]]
 > getChords list 
 >	 | (length list) >= 3 = (take 3 list):(getChords (tail list))
 >	 | otherwise = []
 
-> getBasicTriad :: Key -> PitchClass -> Chordint
+> getBasicTriad :: Key -> PitchClass -> Chord
 > getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass (fst (scale!!2)),pitchClass (fst (scale!!4))]
 >	 where scale = generatePitchScale key 4 pitch
 
-> generateChordRange :: Range -> Chordint  -> Int -> Chord
+> generateChordRange :: (Int,Int) ->Chord -> Int -> [Pitch]
 > generateChordRange range@(low,high) ch itr 
 >	 | itr<low = generateChordRange range ch (itr+1)
 >	 | low<= itr && itr <= high = (checkPitch ch itr)++(generateChordRange range ch (itr+1))
 >	 | otherwise = []
 
-> checkPitch :: Chordint ->Int->Chord
+> checkPitch :: Chord->Int->[Pitch]
 > checkPitch list itr 
 >	 | elem (itr `mod` 12) list = [pitch itr]
 >	 | otherwise = []
 
-> optimiseLength :: Chord -> [Chord] -> Chord
+> optimiseLength :: [Pitch] -> [[Pitch]] -> [Pitch]
 > optimiseLength prev chords =  snd (iterateDiff (zip (scoreChord prev chords) chords))
 
 
-> iterateDiff:: [(Int,Chord)] -> (Int,Chord)
+> iterateDiff:: [(Int,[Pitch])] -> (Int,[Pitch])
 > iterateDiff [(score,ch)] = (score,ch)
 > iterateDiff (x:xs) = try x (iterateDiff xs)
 
 
-> scoreChord:: Chord -> [Chord] -> [Int]
+> scoreChord:: [Pitch] -> [[Pitch]] -> [Int]
 > scoreChord prev chords = [abs  ((sum  (map absPitch prev)) - (sum  (map absPitch next))) | next <- chords]
 
-> try :: (Int,Chord) -> (Int,Chord) -> (Int,Chord)
+> try :: (Int,[Pitch]) -> (Int,[Pitch]) -> (Int,[Pitch])
 > try first@(a,b) second@(c,d)
 >	 | a>c = second
 >	 | otherwise = first
 
-> chordToMusic:: (Chord,Dur) -> Music
+> chordToMusic:: ([Pitch],Dur) -> Music
 > chordToMusic ([],d) = Rest 0
 > chordToMusic ((x:xs),d) = (Note x d [Volume 50]):=:(chordToMusic (xs,d))
 
 
-> generateMusicChord :: Key -> ChordProgression -> Chord -> [Music]
+> generateMusicChord :: Key -> ChordProgression -> [Pitch] -> [Music]
 > generateMusicChord key [(c,d)] prev = [chordToMusic(optimiseLength prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)]
 > generateMusicChord key ((c,d):prog) prev = (chordToMusic(next):(generateMusicChord key prog (fst next)))
 >	 where next = (optimiseLength prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)
