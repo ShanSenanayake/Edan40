@@ -62,11 +62,7 @@ We have defined some types in our program in order to make the types of function
 > type Chordint = [Int]
 > type Range = (AbsPitch,AbsPitch)
 > type Chord = [Pitch]
-
 > type MusicalKey = (PitchClass,Mode)
-
-
-
 
 \end{verbatimtab}
 \begin{description}
@@ -74,7 +70,7 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone (more explaination in the \texttt{generatePitchScale}).
 \item{\texttt{majorScale}} this is the orgin scale of the key, this is the only scale we will need and it will be explained more in \texttt{generatePitchScale}.
 
-\item{\texttt{ChordProgresson}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{chordprogresson}.
+\item{\texttt{ChordProgression}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{ChordProgressIon}.
 \item{\texttt{Chordint}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
 \item{\texttt{Range}} is a tuple of two \texttt{AbsPitch} objects which define the range of where a chord should be placed.
 \item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a chord.
@@ -160,9 +156,11 @@ Using all of the functions above we can combine them and create the \texttt{auto
 >	(generatePitchScale key 3 c)):+:(autoBass style key prog)
 
 \end{verbatimtab}
-The \texttt{autoBass} function takes all the functions above and applies it to the \textt{Chordprogression} for each individual "chord" and then combines it all to \texttt{Music}.
+The \texttt{autoBass} function takes all the functions above and applies it to the \texttt{Chordprogression} for each individual "chord" and then combines it all to \texttt{Music}.
+
+
 \section{Chord Voicing}
-The second part of our program was to generate a chord voicing to the given chord progression. Since a chord consists of three different tones and we had to choose the best one according to a set of rules made the task a bit more challenging. To abide by all the rules as much as possible we have a bunch of subfunctions.
+The second part of our program was to generate a chord voicing to the given chord progression. Since a chord consists of three different tones and we had to choose the best one according to a set of rules it made the task a bit more challenging. To abide by all the rules as much as possible we have a bunch of subfunctions.
 \begin{verbatimtab}
 
 > getBasicTriad :: Key -> PitchClass -> Chordint
@@ -173,7 +171,7 @@ The second part of our program was to generate a chord voicing to the given chor
 
 
 \end{verbatimtab}
-This function gets the three basic tones for a given chord in a key. We utilize the function \texttt{generatePitchScale} to get the  orignial scale starting at the base tone for a chord and then taking on the intervall (0,2,4) from the scale to get the chord. Since we only want the naive triad we take the \texttt{PitchClass} out of the \textt{Pitch} and utilize a function from Haskcore called \texttt{pitchClass} which returns a \texttt{Int} from a \texttt{PitchClass} and thus giving us a \texttt{Chordint}. \\
+This function gets the three basic tones for a given chord in a key. We utilize the function \texttt{generatePitchScale} to get the  original scale starting at the base tone for a chord and then taking on the intervall (0,2,4) from the scale to get the chord. Since we only want the naive triad we take the \texttt{PitchClass} out of the \texttt{Pitch} and utilize a function from Haskcore called \texttt{pitchClass} which returns a \texttt{Int} from a \texttt{PitchClass} and thus giving us a \texttt{Chordint}. \\
 
 \begin{verbatimtab}
 
@@ -191,8 +189,8 @@ This function gets the three basic tones for a given chord in a key. We utilize 
 
 
 \end{verbatimtab}
-The function \texttt{generateChordRange} takes a \textt{Range}, \texttt{Chordint} and a startvalue \textt{Int} for which it produces all the tones which in a chord which fit into the given range in order of lowest tone to highest.
-To do this it has to first iterate until we are in the range and then utilze the helper function \texttt{checkInChord} to check if the current tone belongs to the chord. If it belongs use the Haskore function \texttt{pitch} which takes a \texttt{Int} and makes it a \texttt{Pitch} and return the value in a list.\\
+The function \texttt{generateChordRange} takes a \texttt{Range}, \texttt{Chordint} and a startvalue \texttt{Int} for which it produces all the tones in a chord which fit into the given range in order of lowest tone to highest tone.
+To do this it has to first iterate until we are in the range and then utilize the helper function \texttt{checkInChord} to check if the current tone belongs to the chord. If it belongs it uses the Haskore function \texttt{pitch} which takes a \texttt{Int} and transform it into a \texttt{Pitch} and returns the value in a list.\\
 When the function \texttt{generateChordRange} is done we can utilize this function to only take out the "tightest" chords in the range. This is done to get a good estimate for the "best" chord. 
 \begin{verbatimtab}
 
@@ -228,13 +226,18 @@ Now that we have a bunch of \texttt{Chord} objects to compare we can start to pi
 \end{verbatimtab}
 To pick out the "best" \texttt{Chord} out of our list of \texttt{Chord} objects we have to first score them and then evaluate all of them. 
 The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{Chord} and the list of \texttt{Chord} objects sutible for playing next, and returns a list of \texttt{Int} which has the score. The scoring is simple just adding all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{Chord} objects and then subtracting the sum of the potential next and previous \texttt{Chord}.\\
-Given the score we \texttt{zip} the two lists to map the score to a certain chord. Using this list of tuples in the function \texttt{IterateDiff} we take each tuple and evaluate the score using function \textt{evaluateScore}. The \texttt{evaluateScore} function gives us the smallest tuple of the two, this leads \texttt{IterateDiff} to return the tuple with the least score.\\
+Given the score we \texttt{zip} the two lists to map the score to a certain chord. Using this list of tuples in the function \texttt{IterateDiff} we take each tuple and evaluate the score using function \texttt{evaluateScore}. The \texttt{evaluateScore} function gives us the smallest tuple of the two, this leads \texttt{IterateDiff} to return the tuple with the least score.\\
 The function \texttt{optimiseLength} takes in the previous \texttt{Chord} and the list of potential next \texttt{Chord} objects and using all the functions mentioned above returns the least scored \texttt{Chord} which will be the next \texttt{Chord} played.
+
 \begin{verbatimtab}
+
 > chordToMusic:: (Chord,Dur) -> Music
 > chordToMusic ([],d) = Rest 0
 > chordToMusic ((x:xs),d) = (Note x d [Volume 50]):=:(chordToMusic (xs,d))
 
+\end{verbatimtab}
+The \texttt{chordToMusic} function above takes a tuple of a \texttt{Chord} and \texttt{Dur} and transforms this into the \texttt{Music} type that Haskore has defined. Note that the tuple in the argument has the same type as the elements of a \texttt{ChordProgression}
+\begin{verbatimtab}
 
 > generateMusicChord :: Key -> ChordProgression -> Chord -> [Music]
 > generateMusicChord key [(c,d)] prev = [chordToMusic(optimiseLength 
@@ -244,21 +247,35 @@ The function \texttt{optimiseLength} takes in the previous \texttt{Chord} and th
 >	 where next = (optimiseLength prev (getChords (generateChordRange (52,67) 
 >				(getBasicTriad key c) 0)),d)
 
+\end{verbatimtab}
+The function \texttt{generateMusicChord} calls several functions that we have defined above in order to generate a list of \texttt{Music} from a \texttt{Key}, \texttt{ChordProgression} and a \texttt{Chord} that been played right before. The list of \texttt{Music} types that the function returns are the selected chords that should be played. The list is sorted in the meaning that the order of the chord progression are represented in the order of the list of \texttt{Music} objects. The reason for having an input corresponding to a previously played chord is because the function is recursive and in every step the chord represented in the \texttt{Music} object created are directly dependent on the chord generated in the previous iteration. The problem we encountered here was what to send as previous chord when the function is called for the first time. However we solved this problem in the next function defined.
+\begin{verbatimtab}
+
 > autoChord :: Key -> ChordProgression -> Music
 > autoChord key ((c,d):prog) = line ((chordToMusic(first)):
 >	(generateMusicChord key prog (fst first)))
 >	 where first = ((head (getChords (generateChordRange (52,67) 
 >				(getBasicTriad key c) 0))),d)
 
+\end{verbatimtab}
+The function \texttt{autoChord} is the main function for the chord voicing. It takes a \texttt{Key} and a \texttt{ChordProgression} and generate one \texttt{Music} object that represents all chosen chords in the right order corresponding to the order of the chord progression. In order to create one big \texttt{Music} object we used the function \texttt{line} defined in Haskell which simply takes a list of \texttt{Music} objects (sorted in the order they are to be played) and composition them in sequence. Here we also solved the problem of what to choose as previous chord when generating the first "best" chord. Our solution was to take the first tightest chord and use that as the previous chord in the beginning.
+\begin{verbatimtab}
+
 > mKeyToKey :: MusicalKey -> Key
 > mKeyToKey (p,Major) = (pitchClass p)
 > mKeyToKey (p,Minor) = ((pitchClass p) + 3) `mod` 12
+
+\end{verbatimtab}
+The \texttt{mKeyToKey} function above to transform a certain representation of the key into Haskell's representation of a key. It thus take an argument \texttt{MusicalKey} which is the representation of a key given in the assignment description and transforms it into Haskell's type \texttt{Key}.
+\begin{verbatimtab}
 
 > autoComp :: BassStyle -> MusicalKey -> ChordProgression->Music
 > autoComp style mKey progression = (autoBass style (mKeyToKey mKey) 
 >	progression):=:(autoChord (mKeyToKey mKey) progression)
 
 \end{verbatimtab}
+
+\texttt{autoComp} is the final and also main function of the entire program. It takes three arguments, \texttt{BassStyle}, \texttt{MusicalKey} and a \texttt{ChordProgression} from which it returns one \texttt{Music} object which consists of the bass line and the chord voicing compositioned in parallell. It thus call the two main functions for bass lines and chord voicing, \texttt{autoBass} and \texttt{autoChord} and composition the results in parallell. It also utilizes the \texttt{mKeyToKey} function in order to transform the representation of the key.
 
 
 %\begin{thebibliography}{1}
