@@ -72,7 +72,7 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone (more explaination in the \texttt{generatePitchScale}).
 \item{\texttt{majorScale}} this is the orgin scale of the key, this is the only scale we will need and it will be explained more in \texttt{generatePitchScale}.
 \item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a Chord.
-\item{\texttt{ChordProgresson}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have 
+\item{\texttt{ChordProgresson}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the chordprogresson.
 \item{\texttt{Range}} is a tuple of two \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
 \item{}
 \end{description}
@@ -148,7 +148,7 @@ Using all of the functions above we can combine them and create the \texttt{auto
 
 \end{verbatimtab}
 
-
+\section{Chord Voicing}
 
 \begin{verbatimtab}
 
