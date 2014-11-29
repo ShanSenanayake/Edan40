@@ -32,7 +32,7 @@ Our program is written as a module called AutoComp and it utilizes Haskore which
 The \texttt{Music} datatype in Haskore is what glues the music in our program together. This datatype is quite complex and it can consist of severa different structures. We will only describe the ones that we have used and they are the following:
 
 \begin{description}
-\item{\texttt{Note}} which is paired with a \texttt{Pitch} and \texttt{Dur} and  a list of \texttt{NoteAttribute}. \texttt{Pitch} defines the exact tone of the note, \texttt{Dur} is the length that the note should be played and it is defined as a number of whole notes. The type of \texttt{Dur} is \texttt{Ratio Int}. \texttt{NoteAttribute} defines some values that defines the notion or musical interpretation that should apply to the note. The only \texttt{NoteAttribute} we have used is to set the volume of the note. For example \texttt{Volume 80}.
+\item{\texttt{Note}} defines a musical note. It is paired with a \texttt{Pitch} and \texttt{Dur} and  a list of \texttt{NoteAttribute}. \texttt{Pitch} defines the exact tone of the note, \texttt{Dur} is the length that the note should be played and it is defined as a number of whole notes. The type of \texttt{Dur} is \texttt{Ratio Int}. \texttt{NoteAttribute} defines some values that defines the notion or musical interpretation that should apply to the note. The only \texttt{NoteAttribute} we have used is to set the volume of the note. For example \texttt{Volume 80}.
 \item{\texttt{Rest}} which is paired with a \texttt{Dur} and defines a silent note that should be played as long as \texttt{Dur} specifies.
 \item{\texttt{Music :+: Music}} which denotes a sequential composition. This means the \texttt{Music} that is created consists of the first \texttt{Music} object played before the second \texttt{Music} object. For example, if the two \texttt{Music} objects denotes two object of the type \texttt{Note} then the \texttt{Music} object created by the sequential composition is those two notes played after each other.
 \item{\texttt{Music :=: Music}} denotes parallell composition. The \texttt{Music} object created by the parallell composition consists of the other two \texttt{Music} notes played in parallell. For example, a chord consists of three notes played in parallell and thus three \texttt{Music} objects of type \texttt{Note} compositioned in parallell.
@@ -75,7 +75,7 @@ We have defined some types in our program in order to make the types of function
 \end{description}
 
 \section{BassLine}
-The first task of our program was to genereate three types of basslines depending on userinput. To generate thease three basslines we decided to make three functions which returns infinite lists of the three basslines.
+The first task of our program was to generate three types of bass lines depending on user input. To generate these three bass lines we decided to make three functions which returns infinite lists of the three bass lines.
 \begin{verbatimtab}
 
 
@@ -131,8 +131,8 @@ This function takes a \texttt{Key}, which is a Haskore type which represents the
 
 
 \end{verbatimtab}
-The function shift takes the original scale (in every case the majorScale defined above) and shifts it until it hits the current tone. Since the original scale determines how many steps from the orgin tone (which is the key) it takes, we had to subtract the orgin tone with our new tone to get the differnece and then shift the list until it finds it. This gives us a "new" scale which we can apply to the orgin tone and get a scale which begins with the new tone. \\
-When the shifting is done we take the key in the correct octave inputted above to get a suffient scale.\\
+The function \texttt{shift} takes the original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the current tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. \\
+When the shifting is done we take the key in the correct octave inputted above to get a sufficent scale.\\
 Using all of the functions above we can combine them and create the \texttt{autoBass} function.
 
 \begin{verbatimtab}
