@@ -19,14 +19,23 @@ In this assigment we have constructed a program in Literate Haskell that creates
 This report will serve as documentation and explanation of the program that we have constructed.
 
 \section{Haskore}
-Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell. Since this assignment is build on Haskore some Haskore datatypes and functionally has to be explained before one can understand our program. \\
+Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell. Since this assignment is built on Haskore some Haskore datatypes and functionally has to be explained before one can understand our program. \\
 \begin{description}
 \item{PitchClass} is a datatype which represents the twelve basic tones for music.
 \item{Octave} is a type that contains an \texttt{Int} which represtens which octave the tone belongs to, that means which overtone the original tone is.
-\item{Pitch} is a type that contains a tuple of \testtt{(PitchClass,Octave)}. Pitch explains exactly which tone to take.
+\item{Pitch} is a type that contains a tuple of \texttt{(PitchClass,Octave)}. Pitch explains exactly which tone to take.
 \item{AbsPitch} is a type that contains an  \texttt{Int} which represents Pitch in a number.
 \item{Music} is a datatype which represents music.
 \end{description}
+
+\subsection{Music}
+The \texttt{Music} datatype in Haskore is what glues the music in our program together. This datatype is quite complex and it can consist of severa different structures. We will only describe the ones that we have used and they are the following:
+
+\begin{itemize}
+\item{Note} Which is paired with a \textt{Pitch} and \texttt{Dur} and \texttt{[NoteAttribute]}. \textt{Pitch} defines the exact tone of the note, \texttt{Dur} is the length that the note should be played and it is defined as a number of whole notes. The type of \texttt{Dur} is \texttt{Ratio Int}.
+
+\end{itemize}
+
 The rest of the functions/types will be explained when they show up.
 \begin{verbatimtab}
 
@@ -53,7 +62,7 @@ We have defined some types in our program in order to make the types of function
 The types will be explained as we encounter them in our program.
 
 \section{BassLine}
-The first task of our program was to genereate three types of basslines depending on userinput. This is where the datatype \textt{Bassline} comes into play, this type is used along with pattern matching to determine which bassline to play. We were given three different bassline to code therefore we chose to have three different values to our the datatype \textt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}. \\
+The first task of our program was to genereate three types of basslines depending on user input. This is where the datatype \texttt{Bassline} comes into play, this type is used along with pattern matching to determine which bassline to play. We were given three different bassline to code therefore we chose to have three different values to our the datatype \texttt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}. \\
 To generate thease three basslines we decided to make three functions which returns infinite lists of the three basslines so we could take how many beats per bar we needed in the song.
 \begin{verbatimtab}
 
