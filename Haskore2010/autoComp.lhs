@@ -59,10 +59,12 @@ We have defined some types in our program in order to make the types of function
 > type Scale = [Pitch]
 > majorScale = [0,2,4,5,7,9,11]
 > type ChordProgression = [(PitchClass,Dur)]
-> type Chord = [Pitch]
-> type Range = (Int,Int)
-> type MusicalKey = (PitchClass,Mode)
 > type Chordint = [Int]
+> type Range = (AbsPitch,AbsPitch)
+> type Chord = [Pitch]
+
+> type MusicalKey = (PitchClass,Mode)
+
 
 
 
@@ -72,8 +74,11 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone (more explaination in the \texttt{generatePitchScale}).
 \item{\texttt{majorScale}} this is the orgin scale of the key, this is the only scale we will need and it will be explained more in \texttt{generatePitchScale}.
 
-\item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a chord.
 \item{\texttt{ChordProgresson}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{chordprogresson}.
+\item{\texttt{Chordint}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
+\item{\texttt{Range}} is a tuple of two \texttt{AbsPitch} objects which define the range of where a chord should be placed.
+\item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a chord.
+
 \item{\texttt{Range}} is a tuple of two \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
 \item{}
 \end{description}
@@ -155,21 +160,9 @@ Using all of the functions above we can combine them and create the \texttt{auto
 >	(generatePitchScale key 3 c)):+:(autoBass style key prog)
 
 \end{verbatimtab}
-
+The \texttt{autoBass} function takes all the functions above and applies it to the \textt{Chordprogression} for each individual "chord" and then combines it all to \texttt{Music}.
 \section{Chord Voicing}
-The second part of our program was to generate a chord voicing to the given chord progression. There were some challenges to overcome in order to get decide which chord to play at which time. Below follows the functions that creates the chord voicing.
-\begin{verbatimtab}
-
-
-> getChords :: Chord-> [Chord]
-> getChords list 
->	 | (length list) >= 3 = (take 3 list):(getChords (tail list))
->	 | otherwise = []
-
-\end{verbatimtab}
-
-The \texttt{getChords} function takes one argument that has the type \texttt{Chord} and consists of a list of all notes that a certain chord can be built of. The function generates a list that contains a selection of the tightest triads that can be used to play the chord.
-
+The second part of our program was to generate a chord voicing to the given chord progression. Since a chord consists of three different tones and we had to choose the best one according to a set of rules made the task a bit more challenging. To abide by all the rules as much as possible we have a bunch of subfunctions.
 \begin{verbatimtab}
 
 > getBasicTriad :: Key -> PitchClass -> Chordint
@@ -177,18 +170,41 @@ The \texttt{getChords} function takes one argument that has the type \texttt{Cho
 >	(fst (scale!!2)),pitchClass (fst (scale!!4))]
 >	 where scale = generatePitchScale key 4 pitch
 
-> generateChordRange :: Range -> Chordint  -> Int -> Chord
-> generateChordRange range@(low,high) ch itr 
->	 | itr<low = generateChordRange range ch (itr+1)
->	 | low<= itr && itr <= high = (checkPitch ch itr)++
->	(generateChordRange range ch (itr+1))
+
+
+\end{verbatimtab}
+This function gets the three basic tones for a given chord in a key. We utilize the function \texttt{generatePitchScale} to get the  orignial scale starting at the base tone for a chord and then taking on the intervall (0,2,4) from the scale to get the chord. Since we only want the naive triad we take the \texttt{PitchClass} out of the \textt{Pitch} and utilize a function from Haskcore called \texttt{pitchClass} which returns a \texttt{Int} from a \texttt{PitchClass} and thus giving us a \texttt{Chordint}. \\
+
+\begin{verbatimtab}
+
+> generateChordRange :: Range -> Chordint  -> Int -> [Pitch]
+> generateChordRange range@(low,high) ch curr 
+>	 | curr<low = generateChordRange range ch (curr+1)
+>	 | low<= curr && curr <= high = (checkInChord ch curr)++
+>	(generateChordRange range ch (curr+1))
 >	 | otherwise = []
 
-> checkPitch :: Chordint ->Int->Chord
-> checkPitch list itr 
->	 | elem (itr `mod` 12) list = [pitch itr]
+> checkInChord :: Chordint ->Int->[Pitch]
+> checkInChord list curr 
+>	 | elem (curr `mod` 12) list = [pitch curr]
 >	 | otherwise = []
 
+
+\end{verbatimtab}
+The function \texttt{generateChordRange} takes a \textt{Range}, \texttt{Chordint} and a startvalue \textt{Int} for which it produces all the tones which in a chord which fit into the given range in order of lowest tone to highest.
+To do this it has to first iterate until we are in the range and then utilze the helper function \texttt{checkInChord} to check if the current tone belongs to the chord. If it belongs use the Haskore function \texttt{pitch} which takes a \texttt{Int} and makes it a \texttt{Pitch} and return the value in a list.\\
+When the function \texttt{generateChordRange} is done we can utilize this function to only take out the "tightest" chords in the range. This is done to get a good estimate for the "best" chord. 
+\begin{verbatimtab}
+
+> getChords :: [Pitch]-> [Chord]
+> getChords list 
+>	 | (length list) >= 3 = (take 3 list):(getChords (tail list))
+>	 | otherwise = []
+
+\end{verbatimtab}
+The function \texttt{getChords} takes the range of \texttt{Pitch} objects which define the chord and returns a list of \texttt{Chord} objects which are the "tightest" chords in the range.\\
+Now that we have a bunch of \texttt{Chord} objects to compare we can start to pick out the "best" one. To pick out the "best" chord we have to compare with the previous played chord.
+\begin{verbatimtab}
 > optimiseLength :: Chord -> [Chord] -> Chord
 > optimiseLength prev chords =  snd (iterateDiff 
 >	(zip (scoreChord prev chords) chords))
@@ -196,18 +212,25 @@ The \texttt{getChords} function takes one argument that has the type \texttt{Cho
 
 > iterateDiff:: [(Int,Chord)] -> (Int,Chord)
 > iterateDiff [(score,ch)] = (score,ch)
-> iterateDiff (x:xs) = try x (iterateDiff xs)
+> iterateDiff (x:xs) = evaluateScore x (iterateDiff xs)
 
 
 > scoreChord:: Chord -> [Chord] -> [Int]
 > scoreChord prev chords = [abs  ((sum  (map absPitch prev)) - 
 >	(sum  (map absPitch next))) | next <- chords]
 
-> try :: (Int,Chord) -> (Int,Chord) -> (Int,Chord)
-> try first@(a,b) second@(c,d)
+> evaluateScore :: (Int,Chord) -> (Int,Chord) -> (Int,Chord)
+> evaluateScore first@(a,b) second@(c,d)
 >	 | a>c = second
 >	 | otherwise = first
 
+
+\end{verbatimtab}
+To pick out the "best" \texttt{Chord} out of our list of \texttt{Chord} objects we have to first score them and then evaluate all of them. 
+The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{Chord} and the list of \texttt{Chord} objects sutible for playing next, and returns a list of \texttt{Int} which has the score. The scoring is simple just adding all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{Chord} objects and then subtracting the sum of the potential next and previous \texttt{Chord}.\\
+Given the score we \texttt{zip} the two lists to map the score to a certain chord. Using this list of tuples in the function \texttt{IterateDiff} we take each tuple and evaluate the score using function \textt{evaluateScore}. The \texttt{evaluateScore} function gives us the smallest tuple of the two, this leads \texttt{IterateDiff} to return the tuple with the least score.\\
+The function \texttt{optimiseLength} takes in the previous \texttt{Chord} and the list of potential next \texttt{Chord} objects and using all the functions mentioned above returns the least scored \texttt{Chord} which will be the next \texttt{Chord} played.
+\begin{verbatimtab}
 > chordToMusic:: (Chord,Dur) -> Music
 > chordToMusic ([],d) = Rest 0
 > chordToMusic ((x:xs),d) = (Note x d [Volume 50]):=:(chordToMusic (xs,d))
