@@ -39,9 +39,8 @@ The \texttt{Music} datatype in Haskore is what glues the music in our program to
 \item{\texttt{Instr  IName Music}} sets which instrument that the supplied \texttt{Music} object is to be played on. The type of \texttt{IName} is simply \texttt{String}
 \end{description}
 As stated above there are a few more things that det \texttt{Music} datatype can do but we have only used the ones listed here.
-Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell.
 
-
+\section{AutoComp}
 
 \begin{verbatimtab}
 
@@ -51,7 +50,7 @@ Our program is written as a module called AutoComp and it utilizes Haskore which
 \end{verbatimtab}
 In the first line of the code above we simply define the source code as our module AutoComp. The second line simply loads Haskore so that we can utilize the library.
 
-\section{Types}
+\subsection{Types}
 We have defined some types in our program in order to make the types of functions more easily read and understandable.
 \begin{verbatimtab}
 
@@ -79,10 +78,9 @@ We have defined some types in our program in order to make the types of function
 \item{}
 \end{description}
 
-\section{BassLine}
+\subsection{BassLine}
 The first task of our program was to generate three types of bass lines depending on user input. To generate these three bass lines we decided to make three functions which returns infinite lists of the three bass lines.
 \begin{verbatimtab}
-
 
 > basicBassLine :: Int->  [NoteAttribute]-> Scale -> [Music]
 > basicBassLine 0 vol m = (Note  (m!!0) hn vol):(basicBassLine 4 vol m)
@@ -141,7 +139,6 @@ This function takes a \texttt{Key}, which is a Haskore type which represents the
 >	 | n == x = list
 >	 | otherwise = shift n (xs++[12+x])
 
-
 \end{verbatimtab}
 The function shift takes the original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the new tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. \\
 When the shifting is done we take the key in the correct octave inputted above to get a sufficient scale.\\
@@ -159,7 +156,7 @@ Using all of the functions above we can combine them and create the \texttt{auto
 The \texttt{autoBass} function takes all the functions above and applies it to the \texttt{Chordprogression} for each individual "chord" and then combines it all to \texttt{Music}.
 
 
-\section{Chord Voicing}
+\subsection{Chord Voicing}
 The second part of our program was to generate a chord voicing to the given chord progression. Since a chord consists of three different tones and we had to choose the best one according to a set of rules it made the task a bit more challenging. To abide by all the rules as much as possible we have a bunch of subfunctions.
 \begin{verbatimtab}
 
@@ -167,8 +164,6 @@ The second part of our program was to generate a chord voicing to the given chor
 > getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass 
 >	(fst (scale!!2)),pitchClass (fst (scale!!4))]
 >	 where scale = generatePitchScale key 4 pitch
-
-
 
 \end{verbatimtab}
 This function gets the three basic tones for a given chord in a key. We utilize the function \texttt{generatePitchScale} to get the  original scale starting at the base tone for a chord and then taking on the intervall (0,2,4) from the scale to get the chord. Since we only want the naive triad we take the \texttt{PitchClass} out of the \texttt{Pitch} and utilize a function from Haskcore called \texttt{pitchClass} which returns a \texttt{Int} from a \texttt{PitchClass} and thus giving us a \texttt{Chordint}. \\
@@ -187,7 +182,6 @@ This function gets the three basic tones for a given chord in a key. We utilize 
 >	 | elem (curr `mod` 12) list = [pitch curr]
 >	 | otherwise = []
 
-
 \end{verbatimtab}
 The function \texttt{generateChordRange} takes a \texttt{Range}, \texttt{Chordint} and a startvalue \texttt{Int} for which it produces all the tones in a chord which fit into the given range in order of lowest tone to highest tone.
 To do this it has to first iterate until we are in the range and then utilize the helper function \texttt{checkInChord} to check if the current tone belongs to the chord. If it belongs it uses the Haskore function \texttt{pitch} which takes a \texttt{Int} and transform it into a \texttt{Pitch} and returns the value in a list.\\
@@ -203,6 +197,7 @@ When the function \texttt{generateChordRange} is done we can utilize this functi
 The function \texttt{getChords} takes the range of \texttt{Pitch} objects which define the chord and returns a list of \texttt{Chord} objects which are the "tightest" chords in the range.\\
 Now that we have a bunch of \texttt{Chord} objects to compare we can start to pick out the "best" one. To pick out the "best" chord we have to compare with the previous played chord.
 \begin{verbatimtab}
+
 > optimiseLength :: Chord -> [Chord] -> Chord
 > optimiseLength prev chords =  snd (iterateDiff 
 >	(zip (scoreChord prev chords) chords))
@@ -221,7 +216,6 @@ Now that we have a bunch of \texttt{Chord} objects to compare we can start to pi
 > evaluateScore first@(a,b) second@(c,d)
 >	 | a>c = second
 >	 | otherwise = first
-
 
 \end{verbatimtab}
 To pick out the "best" \texttt{Chord} out of our list of \texttt{Chord} objects we have to first score them and then evaluate all of them. 
