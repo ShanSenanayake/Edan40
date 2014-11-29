@@ -157,7 +157,7 @@ Using all of the functions above we can combine them and create the \texttt{auto
 \end{verbatimtab}
 
 \section{Chord Voicing}
-
+The second part of our program was to generate a chord voicing to the given chord progression. There were some challenges to overcome in order to get decide which chord to play at which time. Below follows the functions that creates the chord voicing.
 \begin{verbatimtab}
 
 
@@ -165,6 +165,12 @@ Using all of the functions above we can combine them and create the \texttt{auto
 > getChords list 
 >	 | (length list) >= 3 = (take 3 list):(getChords (tail list))
 >	 | otherwise = []
+
+\end{verbatimtab}
+
+The \texttt{getChords} function takes one argument that has the type \texttt{Chord} and consists of a list of all notes that a certain chord can be built of. The function generates a list that contains a selection of the tightest triads that can be used to play the chord.
+
+\beigin{verbatimtab}
 
 > getBasicTriad :: Key -> PitchClass -> Chordint
 > getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass 
