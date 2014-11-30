@@ -9,11 +9,12 @@ type ChordProgression = [(PitchClass,Dur)]
 majorScale = [0,2,4,5,7,9,11]
 
 generatePitchScale :: Key -> Octave -> PitchClass -> [Pitch]
-generatePitchScale key octave start = map pitch (map ((12*octave + key)+) (shift (abs ((pitchClass start) - key)) majorScale))
+generatePitchScale key octave start = map pitch (map ((12*octave + key)+) (shift ( (pitchClass start) - key)  majorScale))
 
 
 shift::Int -> [Int] ->[Int]
 shift n list@(x:xs) 
+	| n < 0 = shift (n+12) list
 	| n == x = list
 	| otherwise = shift n (xs++[12+x])
 

@@ -127,7 +127,7 @@ To create a bassline we see that we need a scale, to generate this scale takes u
 
 > generatePitchScale :: Key -> Octave -> PitchClass -> Scale
 > generatePitchScale key octave start = map pitch (map 
->	((12*octave + key)+) (shift (abs ((pitchClass start) - key)) majorScale))
+>	((12*octave + key)+) (shift ((pitchClass start) - key) majorScale))
 
 \end{verbatimtab}
 This function takes a \texttt{Key}, which is a Haskore type which represents the \texttt{PitchClass} in an \texttt{Int}, and \texttt{Octave} and a \texttt{PitchClass} and returns a \texttt{Scale}. In the assigment we were given a bunch of different scales to apply depending on where on the scale the tone for a chord was. We decided to disregard most of this since the only thing the "different" scales gave was a shifting of the orginal scale starting on the tone for a certain scale. To obtain this we decided to make a helper function shift.
@@ -135,12 +135,13 @@ This function takes a \texttt{Key}, which is a Haskore type which represents the
 \begin{verbatimtab}
 
 > shift::Int -> [Int] ->[Int]
-> shift n list@(x:xs) 
+> shift n list@(x:xs)
+>	 | n < 0 = shift (n+12) list 
 >	 | n == x = list
 >	 | otherwise = shift n (xs++[12+x])
 
 \end{verbatimtab}
-The function shift takes the original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the new tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. \\
+The function shift takes the original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the new tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. The first case in the guards \texttt{n < 0 = shift (n+12) list} is needed to ensure that we get the right number which represents the number in the scale, since we always count from the orgin tone and forward this case will ensure that if the origin tone has a larger \texttt{pitchClass} value than the new tone, we get the next overtone of the new tone. \\
 When the shifting is done we take the key in the correct octave inputted above to get a sufficient scale.\\
 Using all of the functions above we can combine them and create the \texttt{autoBass} function.
 
