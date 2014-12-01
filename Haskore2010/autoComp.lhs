@@ -112,7 +112,7 @@ In the code snipped above we have used some macros defined is Haskore.
 
 \begin{description}
 \item[\texttt{hn}] is macro that defines the duration \texttt{Dur} of a half-note.
-\item[\texttt{enr}] is macro that defines an eight-note rest .
+\item[\texttt{enr}] is macro that defines an eight-note rest.
 \item[\texttt{en}]is macro that defines the duration \texttt{Dur} of an eight-note.
 \end{description}
 
