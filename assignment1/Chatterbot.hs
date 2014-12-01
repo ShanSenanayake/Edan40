@@ -30,22 +30,13 @@ type BotBrain = [(Phrase, [Phrase])]
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind botbrain = do
   r<- randomIO :: IO Float
-  return (rulesApply  [(a,pick r b) | (a,b) <- botbrain])
+  return $ rulesApply . (map (map2 (id, pick r))) $ botbrain
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 rulesApply = try . transformationsApply "*" reflect  
 
 reflect :: Phrase -> Phrase
-reflect = foldr (\x acc -> (switchWord x (fst a) (snd a)):acc) []
-  where a = unzip reflections
-
-
-
-switchWord :: String -> [String] -> [String] -> String
-switchWord s [] [] = s
-switchWord s (x:xs) (y:ys)
-  |s == x = y
-  |otherwise = switchWord s xs ys
+reflect  = map (try (flip lookup reflections))   
 
 reflections =
   [ ("am",     "are"),
@@ -80,7 +71,8 @@ prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 
 rulesCompile :: [(String, [String])] -> BotBrain
-rulesCompile = foldr (\(x,y) acc -> (words $ map toLower x ,map words y):acc) [] 
+rulesCompile = map (map2 (words . (map toLower), map words)) 
+
 
 
 

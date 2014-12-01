@@ -31,15 +31,12 @@ match n list1@(x:xs) list2@(y:ys)
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (wc:ps) (x:xs) 
-	| isJust (match wc ps xs) = Just [x]
-	| otherwise = Nothing 
+singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) (match wc ps xs)
+
 
 longerWildcardMatch _ [] = Nothing
-longerWildcardMatch list@(wc:ps) (x:xs) 
-	| isJust(m) = Just (x:fromJust(m))
-	| otherwise = Nothing
-	where m = (match wc list xs) 
+longerWildcardMatch list@(wc:ps) (x:xs) = mmap (x:) (match wc list xs)
+
 
 
 
@@ -64,14 +61,13 @@ matchCheck = matchTest == Just testSubstitutions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply wc f xs (t1,t2) = mmap (substitute wc t2) . mmap f . match wc t1 $ xs
+transformationApply wc f xs (t1,t2) = mmap ((substitute wc t2 ) . f) $ match wc t1 xs
 
 
 
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
-transformationsApply _ _ [] _ = Nothing
-transformationsApply wc f (x:xs) ys = orElse(transformationApply wc f ys x) (transformationsApply wc f xs ys)
+transformationsApply wc f xs ys = foldr1 (orElse) (map (transformationApply wc f ys) xs)
 
 
