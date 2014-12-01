@@ -14,10 +14,8 @@
 %\tableofcontents
 
 \section{Introduction}
-In this assigment we have constructed a program in Literate Haskell that creates the accompaniment for a given melody and chord progression. The accompaniment consists of two parts a bass line and a chord voicing. There are three bass lines to choose between, namely, basic bass, calypso bass and boogie bass. The chord voicing automatically generates the "best" version of a chord in the chord progression. The "best" chord is determined by looking at the notes in the triad of the chord an on the chord played previously. 
-
-We have constructed two other files in Haskell and Haskore format that includes chord progression and melody for two different songs, Twinkle twinkle and Jingle bells. 
-
+In this assigment we have constructed a program in Literate Haskell that creates the accompaniment for a given melody and chord progression. The accompaniment consists of two parts a bass line and a chord voicing. There are three bass lines to choose between, namely, basic bass, calypso bass and boogie bass. The chord voicing automatically generates the "best" version of a chord in the chord progression. The "best" chord is determined by looking at the notes in the triad of the chord an on the chord played previously. \\
+We have constructed two other files in Haskell and Haskore format that includes chord progression and melody for two different songs, Twinkle twinkle and Jingle bells. \\
 This report will serve as documentation and explanation of the program that we have constructed.
 
 \section{Haskore}
@@ -106,8 +104,7 @@ The first task of our program was to generate three types of bass lines dependin
 > boogieBassLine _ vol m = []
 
 \end{verbatimtab}
-The three bass line functions takes three arguments an \texttt{Int}, a list of \texttt{NoteAttribute} and a \texttt{Scale}. The first argument is an index used in the \texttt{Scale} and makes a music object out of it, if the index is negative then it creates a \texttt{Rest}. If the index is not negative it selects the tone that should be played from the available tones defined by the scale. The second argument decides the volume of the music object. The third argument the scale in which the bass line should play in.
-
+The three bass line functions takes three arguments an \texttt{Int}, a list of \texttt{NoteAttribute} and a \texttt{Scale}. The first argument is an index used in the \texttt{Scale} and makes a music object out of it, if the index is negative then it creates a \texttt{Rest}. If the index is not negative it selects the tone that should be played from the available tones defined by the scale. The second argument decides the volume of the music object. The third argument the scale in which the bass line should play in.\\
 In the code snipped above we have used some macros defined is Haskore. 
 
 \begin{description}
@@ -115,7 +112,6 @@ In the code snipped above we have used some macros defined is Haskore.
 \item[\texttt{enr}] is macro that defines an eight-note rest.
 \item[\texttt{en}]is macro that defines the duration \texttt{Dur} of an eight-note.
 \end{description}
-
 To know how long a certain bass line should play in a certain scale we needed an function which decides how many elements take. The function is defined below.
 \begin{verbatimtab}
 
@@ -128,8 +124,7 @@ To know how long a certain bass line should play in a certain scale we needed an
 >	. boogieBassLine 0 vol
 
 \end{verbatimtab}
-The function above takes four arguments. The first argument is used to decide which bass line should be played. The second argument determines for how long a bass line should be played and it is a rational number in terms of how many bars that should be played. Depending on the bass line we take different amounts of notes since all of them do not return the same thing. Since \texttt{Dur} is a \texttt{Ratio Int} we need the function \texttt{rtof} which takes a \texttt{Ratio Int} and returns a float, using this we can convert to an \texttt{Int} using the function \texttt{ceiling} so the function \texttt{take} will work. The third argument decides the volume of the bassline and finally the fourth argument decides which scale the bass line should be played in.
-
+The function above takes four arguments. The first argument is used to decide which bass line should be played. The second argument determines for how long a bass line should be played and it is a rational number in terms of how many bars that should be played. Depending on the bass line we take different amounts of notes since all of them do not return the same thing. Since \texttt{Dur} is a \texttt{Ratio Int} we need the function \texttt{rtof} which takes a \texttt{Ratio Int} and returns a float, using this we can convert to an \texttt{Int} using the function \texttt{ceiling} so the function \texttt{take} will work. The third argument decides the volume of the bassline and finally the fourth argument decides which scale the bass line should be played in.\\
 To create a bass line we see that we need a scale, to generate this scale takes us to the next function that we have defined.
 
 
@@ -141,7 +136,7 @@ To create a bass line we see that we need a scale, to generate this scale takes 
 >	((12*octave + key)+) (shift ((pitchClass start) - key) majorScale))
 
 \end{verbatimtab}
-This function takes three arguments. The first argument is a \texttt{Key}, which is a Haskore type which represents the \texttt{PitchClass} in an \texttt{Int}. The rest of the arguments are an \texttt{Octave} and a \texttt{PitchClass} and the function returns a \texttt{Scale}. In the assigment we were given a bunch of different scales to apply depending on where on the scale the tone for a chord was. We decided to disregard most of this since the only thing the "different" scales gave was a shifting of the orginal scale starting on the tone for a certain scale. To obtain this we decided to make a helper function shift.
+This function takes three arguments. The first argument is a \texttt{Key}, which is a Haskore type which represents the \texttt{PitchClass} in an \texttt{Int}. The rest of the arguments are an \texttt{Octave} and a \texttt{PitchClass} and the function returns a \texttt{Scale}. In the assigment we were given a bunch of different scales to apply depending on where on the scale the tone for a chord was. We decided to disregard most of this since the only thing the "different" scales gave was a shifting of the orginal keys scale starting on the tone for a certain scale, the easiest way to explain this i by giving an example. In the Twinkle Twinkle song we have a C Major key, this gives us the scale C, D, E, F, G, A, B. The scales given to us (ie Ionian, Dorian etc) determines which starting point the key scale should be in. For example D will give us the same scale starting in D (D, E, F, G, A, B, C).  To obtain this we decided to make a helper function shift.
 
 \begin{verbatimtab}
 
@@ -152,10 +147,8 @@ This function takes three arguments. The first argument is a \texttt{Key}, which
 >	 | otherwise = shift n (xs++[12+x])
 
 \end{verbatimtab}
-The function shift takes the original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the new tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. The first case in the guards \texttt{n < 0 = shift (n+12) list} is needed to ensure that we get the right number which represents the number in the scale. Since we always count from the origin tone and forward this case will ensure that if the origin tone has a larger \texttt{pitchClass} value than the new tone, we get the next overtone of the new tone. 
-
-When the shifting is done we take the key in the correct octave inputted above to get a sufficient scale. 
-
+The function shift takes the original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the new tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. The first case in the guards \texttt{n < 0 = shift (n+12) list} is needed to ensure that we get the right number which represents the number in the scale. Since we always count from the origin tone and forward this case will ensure that if the origin tone has a larger \texttt{pitchClass} value than the new tone, we get the next overtone of the new tone. \\
+When the shifting is done we take the key in the correct octave inputted above to get a sufficient scale. \\
 Using all of the functions above we can combine them and create the \texttt{autoBass} function.
 
 \begin{verbatimtab}
@@ -198,8 +191,7 @@ This function gets the three basic tones for a given chord in a key. We utilize 
 
 \end{verbatimtab}
 The function \texttt{generateChordRange} takes a \texttt{Range}, \texttt{Chordint} and a startvalue \texttt{Int} for which it produces all the tones in a chord which fit into the given range in order of lowest tone to highest tone.
-To do this it has to first iterate until we are in the range and then utilize the helper function \texttt{checkInChord} to check if the current tone belongs to the chord. If it belongs it uses the Haskore function \texttt{pitch} which takes a \texttt{Int} and transform it into a \texttt{Pitch} and returns the value in a list.
-
+To do this it has to first iterate until we are in the range and then utilize the helper function \texttt{checkInChord} to check if the current tone belongs to the chord. If it belongs it uses the Haskore function \texttt{pitch} which takes a \texttt{Int} and transform it into a \texttt{Pitch} and returns the value in a list.\\
 When the function \texttt{generateChordRange} is done we can utilize this function to only take out the "tightest" chords in the range. This is done to get a good estimate for the "best" chord. 
 \begin{verbatimtab}
 
@@ -209,8 +201,7 @@ When the function \texttt{generateChordRange} is done we can utilize this functi
 >	 | otherwise = []
 
 \end{verbatimtab}
-The function \texttt{getChords} takes the range of \texttt{Pitch} objects which define the chord and returns a list of \texttt{Chord} objects which are the "tightest" chords in the range. The way this works is by taking the lowest three tones and using that as one possibility for the chord and then throw away the lowest tone. Once again it selects the new lowest three tones and add that to the list of possible chords. This is repeated until there are only two tones left in the range. This yields a list of possible chords that are all reasonably tight.
-
+The function \texttt{getChords} takes the range of \texttt{Pitch} objects which define the chord and returns a list of \texttt{Chord} objects which are the "tightest" chords in the range. The way this works is by taking the lowest three tones and using that as one possibility for the chord and then throw away the lowest tone. Once again it selects the new lowest three tones and add that to the list of possible chords. This is repeated until there are only two tones left in the range. This yields a list of possible chords that are all reasonably tight.\\
 Now that we have a bunch of \texttt{Chord} objects to compare we can start to pick out the "best" one. To pick out the "best" chord we have to compare with the previously played chord.
 \begin{verbatimtab}
 
@@ -232,12 +223,9 @@ Now that we have a bunch of \texttt{Chord} objects to compare we can start to pi
 >	 | otherwise = first
 
 \end{verbatimtab}
-To pick out the "best" \texttt{Chord} out of our list of \texttt{Chord} objects we have to first score them and then evaluate all of them. 
-
-The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{Chord} and the list of \texttt{Chord} objects sutible for playing next, and returns a list of \texttt{Int} which has the score. The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{Chord} objects and then subtracting the sum of the potential next and previous \texttt{Chord}.
-
-Given the score we \texttt{zip} the two lists to map the score to the respective chord. Using this list of tuples in the function \texttt{IterateDiff} we take each tuple and evaluate the score using function \texttt{evaluateScore}. The \texttt{evaluateScore} function gives us the smallest tuple of the two, this leads \texttt{IterateDiff} to return the tuple with the least score.
-
+To pick out the "best" \texttt{Chord} out of our list of \texttt{Chord} objects we have to first score them and then evaluate all of them. \\
+The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{Chord} and the list of \texttt{Chord} objects sutible for playing next, and returns a list of \texttt{Int} which has the score. The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{Chord} objects and then subtracting the sum of the potential next and previous \texttt{Chord}.\\
+Given the score we \texttt{zip} the two lists to map the score to the respective chord. Using this list of tuples in the function \texttt{IterateDiff} we take each tuple and evaluate the score using function \texttt{evaluateScore}. The \texttt{evaluateScore} function gives us the smallest tuple of the two, this leads \texttt{IterateDiff} to return the tuple with the least score.\\
 The function \texttt{optimiseLength} takes in the previous \texttt{Chord} and the list of potential next \texttt{Chord} objects and using all the functions mentioned above returns the least scored \texttt{Chord} which will be the next \texttt{Chord} played.
 
 \begin{verbatimtab}
