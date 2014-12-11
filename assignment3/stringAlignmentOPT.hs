@@ -19,11 +19,19 @@ scoreSpace = -1
 scoreMissmatch = -1
 
 similarityScore :: String -> String -> Int
-similarityScore [] [] = 0 
-similarityScore [] (y:ys) = (similarityScore [] ys) + (score '-' y)
-similarityScore (x:xs) [] = (similarityScore xs []) + (score x '-')
-similarityScore string1@(x:xs) string2@(y:ys) = max ((similarityScore xs ys) + (score x y)) (max ((similarityScore string1 ys) + 
-	(score '-' y)) ((similarityScore xs string2) + (score x '-')))
+similarityScore xs ys = = simLen (length xs) (length ys)
+  where
+    simLen i j = simTable!!i!!j
+    simTable = [[ simEntry i j | j<-[0..]] | i<-[0..] ]
+       
+    simEntry :: Int -> Int -> Int
+    simEntry 0 0 = 0
+    simEntry i 0 = (i-1)*scoreSpace
+    simEntry 0 j = (j-1)*scoreSpace
+    simEntry i j = max ((simLen (i-1) (j-1)) + (score x y)) (max (simLen i (j-1) + scoreSpace) (simLen (i-1) j) + scoreSpace)
+      where
+         x = xs!!(i-1)
+         y = ys!!(j-1)
 
 
 score :: Char -> Char -> Int
@@ -41,54 +49,7 @@ maximaBy valueFcn xs = [x | x <-xs, (maximum (map valueFcn xs))==(valueFcn x)]
 
 
 optAlignments :: String -> String -> [AlignmentType]
-optAlignments [] [] = [([],[])]
-optAlignments [] (y:ys) = attachHeads '-' y (optAlignments [] ys)
-optAlignments (x:xs) [] = attachHeads x '-' (optAlignments xs [])
-optAlignments string1@(x:xs) string2@(y:ys) = maximaBy scoring ((attachHeads x  y (optAlignments xs ys))++
-	(attachHeads '-'  y (optAlignments string1 ys)) ++ (attachHeads x  '-' (optAlignments xs string2)))
-
-
-
-scoring :: (String,String) -> Int
-scoring ([],[]) = 0
-scoring ([],_) = 0
-scoring (_,[]) = 0
-scoring ((x:xs),(y:ys)) = score x y + scoring (xs,ys)
-
-
-outputOptAlignments :: String -> String -> IO ()
-outputOptAlignments x y = do
-	putStrLn ("There are " ++ (show (length z)) ++ " optimal alignments")
-	putLine' z (length z)
-		where z = optAlign x y
-
-
-putLine' :: [(String,String)] -> Int-> IO ()
-putLine' [] z = putStrLn ("There are " ++ (show z) ++ " optimal alignments")
-putLine' ((x,y):list) z = do
-	putStrLn "---------------------"
-	putStrLn x
-	putStrLn y
-	putStrLn "---------------------"
-	putLine' list z
-
-simScore :: String -> String -> Int
-simScore xs ys = simLen (length xs) (length ys)
-  where
-    simLen i j = simTable!!i!!j
-    simTable = [[ simEntry i j | j<-[0..]] | i<-[0..] ]
-       
-    simEntry :: Int -> Int -> Int
-    simEntry 0 0 = 0
-    simEntry i 0 = (i-1)*scoreSpace
-    simEntry 0 j = (j-1)*scoreSpace
-    simEntry i j = max ((simLen (i-1) (j-1)) + (score x y)) (max (simLen i (j-1) + scoreSpace) (simLen (i-1) j) + scoreSpace)
-      where
-         x = xs!!(i-1)
-         y = ys!!(j-1)
-
-optAlign :: String -> String -> [AlignmentType]
-optAlign xs ys = snd (optLen (length xs) (length ys))
+optAlignments xs ys = = snd (optLen (length xs) (length ys))
 	where
 		optLen i j = optTable!!i!!j
 		optTable = [[optEntry i j | j <-[0..]] | i <- [0..]]
@@ -121,3 +82,20 @@ max' first@(a1,a2) second@(b1,b2)
 	| a1>b1 = first
 	| otherwise = second
 
+
+
+outputOptAlignments :: String -> String -> IO ()
+outputOptAlignments x y = do
+	putStrLn ("There are " ++ (show (length z)) ++ " optimal alignments")
+	putLine' z (length z)
+		where z = optAlignments x y
+
+
+putLine' :: [(String,String)] -> Int-> IO ()
+putLine' [] z = putStrLn ("There are " ++ (show z) ++ " optimal alignments")
+putLine' ((x,y):list) z = do
+	putStrLn "---------------------"
+	putStrLn x
+	putStrLn y
+	putStrLn "---------------------"
+	putLine' list z
