@@ -143,6 +143,11 @@ number :: Parser Int
 number = token (digitVal #> number')
 
 
+--mulOp :: Parser ((Expr, Expr) -> Expr)
+mulOp = lit '*' >-> (\_ -> Mul)
+	! lit '/' >-> (\_ -> Div)
+
+
 
 
 
