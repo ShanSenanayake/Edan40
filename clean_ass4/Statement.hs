@@ -38,11 +38,14 @@ buildWrite v = Write v
 statement = assignment ! ifStatement ! skip ! block ! while ! read1 ! write
 
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
+
+exec [] _ _ = []
+
 exec (If cond thenStmts elseStmts: stmts) dict input = 
     if (Expr.value cond dict)>0 
     then exec (thenStmts: stmts) dict input
     else exec (elseStmts: stmts) dict input
---Kan vara fel då flera instanser av samma variabler förekommer i mappen
+
 exec (Assignment var expr : stmts) dict input = exec stmts newDict input 
     where newDict = Dictionary.insert (var,(Expr.value expr dict)) dict
 
@@ -50,15 +53,35 @@ exec (Skip string:stmts) dict input = exec stmts dict input
 
 exec (Block blockStmts:stmts) dict input = exec (blockStmts++stmts) dict input
 
-exec (While expr whileStmts:stmts) dict input = exec (whileExec (Expr.value expr dict) whileStmts stmts) dict input
+exec (While expr whileStmts:stmts) dict input = 
+	if (Expr.value expr dict)>0
+	then exec (whileStmts:(While expr whileStmts):stmts) dict input
+	else exec stmts dict input
+
+exec (Read var: stmts) dict (i:input) = exec stmts newDict input 
+	where newDict = Dictionary.insert (var,i) dict
+
+exec (Write expr: stmts) dict input = (Expr.value expr dict):(exec stmts dict input)
 
 
 
-whileExec:: (Num a, Ord a) => a -> b -> [b] -> [b]
-whileExec n loop end 
-    | n>0 = loop:(whileExec (n-1) loop end)
-    | otherwise = end
 
+
+toString' :: T -> String 
+toString' (Assignment var expr) = var++" := "++(Expr.toString expr)++";\n"
+toString'  (If cond thenStmts elseStmts) = "if " ++ (Expr.toString cond) ++ " then\n" ++ 
+	(toString thenStmts) ++ "else\n" ++ (toString elseStmts)
+toString' (Skip v) = "skip;\n"
+toString' (Block blockStmts) = "begin\n" ++ (blockToString blockStmts) ++ "end\n"
+toString' (While expr whileStmts) = "while " ++ (Expr.toString expr) ++ " do\n" ++ (toString whileStmts)
+toString' (Read var) = "read " ++ var ++ ";\n"
+toString' (Write expr) = "write " ++ (Expr.toString expr) ++ ";\n"
+
+
+blockToString :: [T] -> String
+blockToString [] = []
+blockToString (s:stmts) = (toString s) ++ (blockToString stmts)
 instance Parse Statement where
-  parse = statement
-  toString = error "Statement.toString not implemented"
+  parse = statement 
+
+  toString = toString'
