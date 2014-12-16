@@ -60,7 +60,7 @@ We have defined some types in our program in order to make the types of function
 > majorScale = [0,2,4,5,7,9,11]
 > type ChordProgression = [(PitchClass,Dur)]
 > type ChordPatternInPitchClassValue = [Int]
-> type Range = (AbsPitch,AbsPitch)
+> type Range = (Pitch,Pitch)
 > type ChordPattern = [Pitch]
 > type MusicalKey = (PitchClass,Mode)
 
@@ -72,7 +72,7 @@ We have defined some types in our program in order to make the types of function
 
 \item{\texttt{ChordProgression}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. For example a song that goes in a C major scale has the tones C, D, E, F, G, A, B that defines it. When taking a C chord, the only chord that fits in the scale is a C major chord since the C minor will make the song clash (skära sig). The same is true for a D chord, this will generate a D minor chord which will fit in the scale. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{ChordProgressIon}.  Since the task given only needs to be able to handle major scale songs (which go in one scale) and only represent Major or Minor chords.
 \item{\texttt{ChordPatternInPitchClassValue}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
-\item{\texttt{Range}} is a tuple of two elements of type \texttt{AbsPitch} objects which define the range of where a chord should be placed.
+\item{\texttt{Range}} is a tuple of two elements of type \texttt{Pitch} objects which define the range of where a chord should be placed.
 \item{\texttt{ChordPattern}} is a list of three \texttt{Pitch} objects which determines a chord.
 
 \item{\texttt{Range}} is a tuple of two elements of type \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
@@ -176,7 +176,7 @@ This function gets the three basic tones for a given chord in a key. We utilize 
 \begin{verbatimtab}
 
 > generateChordRange :: Range -> ChordPatternInPitchClassValue  -> [Pitch]
-> generateChordRange (low,high) ch = [pitch c | c <- [low..high] , elem(c `mod` 12) ch]
+> generateChordRange (low,high) ch = [pitch c | c <- [(absPitch low)..(absPitch high)] , elem(c `mod` 12) ch]
 
 
 
@@ -222,12 +222,12 @@ Given the scoring in list of tuple we fold the list with a function \texttt{pick
 The \texttt{chordToMusic} function above takes a tuple of a \texttt{ChordPattern} and \texttt{Dur} and transforms this into the \texttt{Music} type that Haskore has defined. Note that the tuple in the argument has the same type as the elements of a \texttt{ChordProgression}
 \begin{verbatimtab}
 
-> generateMusicChord :: Key -> ChordProgression -> ChordPattern -> [Music]
-> generateMusicChord key [(c,d)] prev = [chordToMusic(optimiseLength 
->	prev (getChordPatterns (generateChordRange (52,67) (getBasicTriad key c))),d)]
-> generateMusicChord key ((c,d):prog) prev = (chordToMusic(next):
->	(generateMusicChord key prog (fst next)))
->	 where next = (optimiseLength prev (getChordPatterns (generateChordRange (52,67) 
+> generateMusicChord :: Key -> ChordProgression -> ChordPattern -> Range -> [Music]
+> generateMusicChord key [(c,d)] prev range = [chordToMusic(optimiseLength 
+>	prev (getChordPatterns (generateChordRange range (getBasicTriad key c))),d)]
+> generateMusicChord key ((c,d):prog) prev range = (chordToMusic(next):
+>	(generateMusicChord key prog (fst next) range))
+>	 where next = (optimiseLength prev (getChordPatterns (generateChordRange range 
 >				(getBasicTriad key c))),d)
 
 \end{verbatimtab}
@@ -236,8 +236,8 @@ The function \texttt{generateMusicChord} calls several functions that we have de
 
 > autoChord :: Key -> ChordProgression -> Music
 > autoChord key ((c,d):prog) = line ((chordToMusic(first)):
->	(generateMusicChord key prog (fst first)))
->	 where first = ((head (getChordPatterns (generateChordRange (52,67) 
+>	(generateMusicChord key prog (fst first) ((E,4),(G,5))))
+>	 where first = ((head (getChordPatterns (generateChordRange ((E,4),(G,5)) 
 >				(getBasicTriad key c)))),d)
 
 \end{verbatimtab}
