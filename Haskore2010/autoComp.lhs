@@ -59,7 +59,7 @@ We have defined some types in our program in order to make the types of function
 > type Scale = [Pitch]
 > majorScale = [0,2,4,5,7,9,11]
 > type ChordProgression = [(PitchClass,Dur)]
-> type Chordint = [Int]
+> type ChordPatternInPitchClassValue = [Int]
 > type Range = (AbsPitch,AbsPitch)
 > type Chord = [Pitch]
 > type MusicalKey = (PitchClass,Mode)
@@ -71,7 +71,7 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{majorScale}} is the origin scale of the key, this is the only scale we will need and it will be explained in more detail in \texttt{generatePitchScale}.
 
 \item{\texttt{ChordProgression}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{ChordProgressIon}.
-\item{\texttt{Chordint}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
+\item{\texttt{ChordPatternInPitchClassValue}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
 \item{\texttt{Range}} is a tuple of two elements of type \texttt{AbsPitch} objects which define the range of where a chord should be placed.
 \item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a chord.
 
@@ -167,30 +167,30 @@ The \texttt{autoBass} function is the main function of the bass lines. It takes 
 The second part of our program was to generate a chord voicing to the given chord progression. Since a chord consists of three different tones and we had to choose the best one according to a set of rules it made the task a bit more challenging. To abide by all the rules as much as possible we have a bunch of subfunctions.
 \begin{verbatimtab}
 
-> getBasicTriad :: Key -> PitchClass -> Chordint
+> getBasicTriad :: Key -> PitchClass -> ChordPatternInPitchClassValue
 > getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass 
 >	(fst (scale!!2)),pitchClass (fst (scale!!4))]
 >	 where scale = generatePitchScale key 4 pitch
 
 \end{verbatimtab}
-This function gets the three basic tones for a given chord in a key. We utilize the function \texttt{generatePitchScale} to get the  original scale starting at the base tone for a chord and then taking on the intervall (0,2,4) from the scale to get the chord. Since we only want the naive triad we take the \texttt{PitchClass} out of the \texttt{Pitch} and utilize a function from Haskcore called \texttt{pitchClass} which returns an \texttt{Int} from a \texttt{PitchClass} and thus giving us a \texttt{Chordint}.
+This function gets the three basic tones for a given chord in a key. We utilize the function \texttt{generatePitchScale} to get the  original scale starting at the base tone for a chord and then taking on the intervall (0,2,4) from the scale to get the chord. Since we only want the naive triad we take the \texttt{PitchClass} out of the \texttt{Pitch} and utilize a function from Haskcore called \texttt{pitchClass} which returns an \texttt{Int} from a \texttt{PitchClass} and thus giving us a \texttt{ChordPatternInPitchClassValue}.
 
 \begin{verbatimtab}
 
-> generateChordRange :: Range -> Chordint  -> Int -> [Pitch]
+> generateChordRange :: Range -> ChordPatternInPitchClassValue  -> Int -> [Pitch]
 > generateChordRange range@(low,high) ch curr 
 >	 | curr < low = generateChordRange range ch (curr+1)
 >	 | low <= curr && curr <= high = (checkInChord ch curr)++
 >	(generateChordRange range ch (curr+1))
 >	 | otherwise = []
 
-> checkInChord :: Chordint ->Int->[Pitch]
+> checkInChord :: ChordPatternInPitchClassValue ->Int->[Pitch]
 > checkInChord list curr 
 >	 | elem (curr `mod` 12) list = [pitch curr]
 >	 | otherwise = []
 
 \end{verbatimtab}
-The function \texttt{generateChordRange} takes a \texttt{Range}, \texttt{Chordint} and a startvalue \texttt{Int} for which it produces all the tones in a chord which fit into the given range in order of lowest tone to highest tone.
+The function \texttt{generateChordRange} takes a \texttt{Range}, \texttt{ChordPatternInPitchClassValue} and a startvalue \texttt{Int} for which it produces all the tones in a chord which fit into the given range in order of lowest tone to highest tone.
 To do this it has to first iterate until we are in the range and then utilize the helper function \texttt{checkInChord} to check if the current tone belongs to the chord. If it belongs it uses the Haskore function \texttt{pitch} which takes a \texttt{Int} and transform it into a \texttt{Pitch} and returns the value in a list.\\
 When the function \texttt{generateChordRange} is done we can utilize this function to only take out the "tightest" chords in the range. This is done to get a good estimate for the "best" chord. 
 \begin{verbatimtab}
