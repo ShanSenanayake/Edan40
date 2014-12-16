@@ -166,9 +166,9 @@ The second part of our program was to generate a chord voicing to the given chor
 \begin{verbatimtab}
 
 > getBasicTriad :: Key -> PitchClass -> ChordPatternInPitchClassValue
-> getBasicTriad key pitch= [pitchClass (fst (scale!!0)),pitchClass 
->	(fst (scale!!2)),pitchClass (fst (scale!!4))]
+> getBasicTriad key pitch = map (pitchClass.fst) [scale!!0,scale!!2,scale!!4]
 >	 where scale = generatePitchScale key 4 pitch
+
 
 \end{verbatimtab}
 This function gets the three basic tones for a given chord in a key. We utilize the function \texttt{generatePitchScale} to get the  original scale starting at the base tone for a chord and then taking on the intervall (0,2,4) from the scale to get the chord. Since we only want the naive triad we take the \texttt{PitchClass} out of the \texttt{Pitch} and utilize a function from Haskcore called \texttt{pitchClass} which returns an \texttt{Int} from a \texttt{PitchClass} and thus giving us a \texttt{ChordPatternInPitchClassValue}.
