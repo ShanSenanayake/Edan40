@@ -61,7 +61,7 @@ We have defined some types in our program in order to make the types of function
 > type ChordProgression = [(PitchClass,Dur)]
 > type ChordPatternInPitchClassValue = [Int]
 > type Range = (AbsPitch,AbsPitch)
-> type Chord = [Pitch]
+> type ChordPattern = [Pitch]
 > type MusicalKey = (PitchClass,Mode)
 
 \end{verbatimtab}
@@ -73,7 +73,7 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{ChordProgression}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. For example a song that goes in a C major scale has the tones C, D, E, F, G, A, B that defines it. When taking a C chord, the only chord that fits in the scale is a C major chord since the C minor will make the song clash (skära sig). The same is true for a D chord, this will generate a D minor chord which will fit in the scale. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{ChordProgressIon}.  Since the task given only needs to be able to handle major scale songs (which go in one scale) and only represent Major or Minor chords.
 \item{\texttt{ChordPatternInPitchClassValue}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
 \item{\texttt{Range}} is a tuple of two elements of type \texttt{AbsPitch} objects which define the range of where a chord should be placed.
-\item{\texttt{Chord}} is a list of three \texttt{Pitch} objects which determines a chord.
+\item{\texttt{ChordPattern}} is a list of three \texttt{Pitch} objects which determines a chord.
 
 \item{\texttt{Range}} is a tuple of two elements of type \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
 \item{}
@@ -195,65 +195,65 @@ To do this it has to first iterate until we are in the range and then utilize th
 When the function \texttt{generateChordRange} is done we can utilize this function to only take out the "tightest" chords in the range. This is done to get a good estimate for the "best" chord. 
 \begin{verbatimtab}
 
-> getChords :: [Pitch]-> [Chord]
-> getChords list 
->	 | (length list) >= 3 = (take 3 list):(getChords (tail list))
+> getChordPatterns :: [Pitch]-> [ChordPattern]
+> getChordPatterns list 
+>	 | (length list) >= 3 = (take 3 list):(getChordPatterns (tail list))
 >	 | otherwise = []
 
 \end{verbatimtab}
-The function \texttt{getChords} takes the range of \texttt{Pitch} objects which define the chord and returns a list of \texttt{Chord} objects which are the "tightest" chords in the range. The way this works is by taking the lowest three tones and using that as one possibility for the chord and then throw away the lowest tone. Once again it selects the new lowest three tones and add that to the list of possible chords. This is repeated until there are only two tones left in the range. This yields a list of possible chords that are all reasonably tight.\\
-Now that we have a bunch of \texttt{Chord} objects to compare we can start to pick out the "best" one. To pick out the "best" chord we have to compare with the previously played chord.
+The function \texttt{getChordPatterns} takes the range of \texttt{Pitch} objects which define the chord and returns a list of \texttt{ChordPattern} objects which are the "tightest" chords in the range. The way this works is by taking the lowest three tones and using that as one possibility for the chord and then throw away the lowest tone. Once again it selects the new lowest three tones and add that to the list of possible chords. This is repeated until there are only two tones left in the range. This yields a list of possible chords that are all reasonably tight.\\
+Now that we have a bunch of \texttt{ChordPattern} objects to compare we can start to pick out the "best" one. To pick out the "best" chord we have to compare with the previously played chord.
 \begin{verbatimtab}
 
-> optimiseLength :: Chord -> [Chord] -> Chord
+> optimiseLength :: ChordPattern -> [ChordPattern] -> ChordPattern
 > optimiseLength prev chords =  snd (iterateDiff 
 >	(zip (scoreChord prev chords) chords))
 
-> scoreChord:: Chord -> [Chord] -> [Int]
+> scoreChord:: ChordPattern -> [ChordPattern] -> [Int]
 > scoreChord prev chords = [abs  ((sum  (map absPitch prev)) - 
 >	(sum  (map absPitch next))) | next <- chords]
 
-> iterateDiff:: [(Int,Chord)] -> (Int,Chord)
+> iterateDiff:: [(Int,ChordPattern)] -> (Int,ChordPattern)
 > iterateDiff [(score,ch)] = (score,ch)
 > iterateDiff (x:xs) = evaluateScore x (iterateDiff xs)
 
-> evaluateScore :: (Int,Chord) -> (Int,Chord) -> (Int,Chord)
+> evaluateScore :: (Int,ChordPattern) -> (Int,ChordPattern) -> (Int,ChordPattern)
 > evaluateScore first@(a,b) second@(c,d)
 >	 | a>c = second
 >	 | otherwise = first
 
 \end{verbatimtab}
-To pick out the "best" \texttt{Chord} out of our list of \texttt{Chord} objects we have to first score them and then evaluate all of them. \\
-The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{Chord} and the list of \texttt{Chord} objects sutible for playing next, and returns a list of \texttt{Int} which has the score. The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{Chord} objects and then subtracting the sum of the potential next and previous \texttt{Chord}.\\
+To pick out the "best" \texttt{ChordPattern} out of our list of \texttt{ChordPattern} objects we have to first score them and then evaluate all of them. \\
+The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{ChordPattern} and the list of \texttt{ChordPattern} objects sutible for playing next, and returns a list of \texttt{Int} which has the score. The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{ChordPattern} objects and then subtracting the sum of the potential next and previous \texttt{ChordPattern}.\\
 Given the score we \texttt{zip} the two lists to map the score to the respective chord. Using this list of tuples in the function \texttt{IterateDiff} we take each tuple and evaluate the score using function \texttt{evaluateScore}. The \texttt{evaluateScore} function gives us the smallest tuple of the two, this leads \texttt{IterateDiff} to return the tuple with the least score.\\
-The function \texttt{optimiseLength} takes in the previous \texttt{Chord} and the list of potential next \texttt{Chord} objects and using all the functions mentioned above returns the least scored \texttt{Chord} which will be the next \texttt{Chord} played.
+The function \texttt{optimiseLength} takes in the previous \texttt{ChordPattern} and the list of potential next \texttt{ChordPattern} objects and using all the functions mentioned above returns the least scored \texttt{ChordPattern} which will be the next \texttt{ChordPattern} played.
 
 \begin{verbatimtab}
 
-> chordToMusic:: (Chord,Dur) -> Music
+> chordToMusic:: (ChordPattern,Dur) -> Music
 > chordToMusic ([],d) = Rest 0
 > chordToMusic ((x:xs),d) = (Note x d [Volume 50]):=:(chordToMusic (xs,d))
 
 \end{verbatimtab}
-The \texttt{chordToMusic} function above takes a tuple of a \texttt{Chord} and \texttt{Dur} and transforms this into the \texttt{Music} type that Haskore has defined. Note that the tuple in the argument has the same type as the elements of a \texttt{ChordProgression}
+The \texttt{chordToMusic} function above takes a tuple of a \texttt{ChordPattern} and \texttt{Dur} and transforms this into the \texttt{Music} type that Haskore has defined. Note that the tuple in the argument has the same type as the elements of a \texttt{ChordProgression}
 \begin{verbatimtab}
 
-> generateMusicChord :: Key -> ChordProgression -> Chord -> [Music]
+> generateMusicChord :: Key -> ChordProgression -> ChordPattern -> [Music]
 > generateMusicChord key [(c,d)] prev = [chordToMusic(optimiseLength 
->	prev (getChords (generateChordRange (52,67) (getBasicTriad key c) 0)),d)]
+>	prev (getChordPatterns (generateChordRange (52,67) (getBasicTriad key c) 0)),d)]
 > generateMusicChord key ((c,d):prog) prev = (chordToMusic(next):
 >	(generateMusicChord key prog (fst next)))
->	 where next = (optimiseLength prev (getChords (generateChordRange (52,67) 
+>	 where next = (optimiseLength prev (getChordPatterns (generateChordRange (52,67) 
 >				(getBasicTriad key c) 0)),d)
 
 \end{verbatimtab}
-The function \texttt{generateMusicChord} calls several functions that we have defined above in order to generate a list of \texttt{Music} from a \texttt{Key}, \texttt{ChordProgression} and a \texttt{Chord} which denotes chord played right before the music generated by this function. The list of \texttt{Music} types that the function returns are the selected chords that should be played. The list is sorted in the meaning that the order of the chord progression are represented in the order of the list of \texttt{Music} objects. The reason for having an input corresponding to a previously played chord is because the function is recursive and in every step the chord represented in the \texttt{Music} object created are directly dependent on the chord generated in the previous iteration. The problem we encountered here was what to send as previous chord when the function is called for the first time. However we solved this problem in the next function defined.
+The function \texttt{generateMusicChord} calls several functions that we have defined above in order to generate a list of \texttt{Music} from a \texttt{Key}, \texttt{ChordProgression} and a \texttt{ChordPattern} which denotes chord played right before the music generated by this function. The list of \texttt{Music} types that the function returns are the selected chords that should be played. The list is sorted in the meaning that the order of the chord progression are represented in the order of the list of \texttt{Music} objects. The reason for having an input corresponding to a previously played chord is because the function is recursive and in every step the chord represented in the \texttt{Music} object created are directly dependent on the chord generated in the previous iteration. The problem we encountered here was what to send as previous chord when the function is called for the first time. However we solved this problem in the next function defined.
 \begin{verbatimtab}
 
 > autoChord :: Key -> ChordProgression -> Music
 > autoChord key ((c,d):prog) = line ((chordToMusic(first)):
 >	(generateMusicChord key prog (fst first)))
->	 where first = ((head (getChords (generateChordRange (52,67) 
+>	 where first = ((head (getChordPatterns (generateChordRange (52,67) 
 >				(getBasicTriad key c) 0))),d)
 
 \end{verbatimtab}
