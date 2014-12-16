@@ -154,10 +154,8 @@ Using all of the functions above we can combine them and create the \texttt{auto
 \begin{verbatimtab}
 
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music
-> autoBass style key [(c,d)] = (bassLine style d [Volume 50] 
->	(generatePitchScale key 3 c))
-> autoBass style key ((c,d):prog) = (bassLine style d [Volume 50] 
->	(generatePitchScale key 3 c)):+:(autoBass style key prog)
+> autoBass style key cprog = foldl (\acc (c,d) -> acc :+: ((bassLine style d [Volume 50] 
+>	(generatePitchScale key 3 c)))) (Rest 0) cprog 
 
 \end{verbatimtab}
 The \texttt{autoBass} function is the main function of the bass lines. It takes all the functions above and applies it to the \texttt{Chordprogression} for each individual "chord" and then combines it all into \texttt{Music}.
