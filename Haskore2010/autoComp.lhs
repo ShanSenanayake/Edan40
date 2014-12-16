@@ -196,27 +196,20 @@ Now that we have a bunch of \texttt{ChordPattern} objects to compare we can star
 \begin{verbatimtab}
 
 > optimiseLength :: ChordPattern -> [ChordPattern] -> ChordPattern
-> optimiseLength prev chords =  snd (iterateDiff 
->	(zip (scoreChord prev chords) chords))
+> optimiseLength prev chords = snd $ foldr1 pick [(scoreChord prev c, c) | c <- chords]
+>	where pick a@(sa, _) b@(sb, _)
+>		| sa > sb   = b
+>		| otherwise = a
 
-> scoreChord:: ChordPattern -> [ChordPattern] -> [Int]
-> scoreChord prev chords = [abs  ((sum  (map absPitch prev)) - 
->	(sum  (map absPitch next))) | next <- chords]
+> scoreChord:: ChordPattern -> ChordPattern -> Int
+> scoreChord prev next = abs  ((sum  (map absPitch prev)) - 
+>	(sum  (map absPitch next)))
 
-> iterateDiff:: [(Int,ChordPattern)] -> (Int,ChordPattern)
-> iterateDiff [(score,ch)] = (score,ch)
-> iterateDiff (x:xs) = evaluateScore x (iterateDiff xs)
-
-> evaluateScore :: (Int,ChordPattern) -> (Int,ChordPattern) -> (Int,ChordPattern)
-> evaluateScore first@(a,b) second@(c,d)
->	 | a>c = second
->	 | otherwise = first
 
 \end{verbatimtab}
 To pick out the "best" \texttt{ChordPattern} out of our list of \texttt{ChordPattern} objects we have to first score them and then evaluate all of them. \\
-The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{ChordPattern} and the list of \texttt{ChordPattern} objects sutible for playing next, and returns a list of \texttt{Int} which has the score. The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{ChordPattern} objects and then subtracting the sum of the potential next and previous \texttt{ChordPattern}.\\
-Given the score we \texttt{zip} the two lists to map the score to the respective chord. Using this list of tuples in the function \texttt{IterateDiff} we take each tuple and evaluate the score using function \texttt{evaluateScore}. The \texttt{evaluateScore} function gives us the smallest tuple of the two, this leads \texttt{IterateDiff} to return the tuple with the least score.\\
-The function \texttt{optimiseLength} takes in the previous \texttt{ChordPattern} and the list of potential next \texttt{ChordPattern} objects and using all the functions mentioned above returns the least scored \texttt{ChordPattern} which will be the next \texttt{ChordPattern} played.
+The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{ChordPattern} and a potential next \texttt{ChordPattern}  and returns a value for that comparison . The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{ChordPattern} objects and then subtracting the sum of the potential next and previous \texttt{ChordPattern}.\\
+Given the scoring in list of tuple we fold the list with a function \texttt{pick} which selects the \texttt{ChordPattern}  which has the least score.
 
 \begin{verbatimtab}
 
