@@ -215,7 +215,8 @@ Given the scoring in list of tuple we fold the list with a function \texttt{pick
 
 > chordToMusic:: (ChordPattern,Dur) -> Music
 > chordToMusic ([],d) = Rest 0
-> chordToMusic ((x:xs),d) = (Note x d [Volume 50]):=:(chordToMusic (xs,d))
+> chordToMusic (xs,d) = chord [(Note x d [Volume 50])| x <- xs]
+
 
 \end{verbatimtab}
 The \texttt{chordToMusic} function above takes a tuple of a \texttt{ChordPattern} and \texttt{Dur} and transforms this into the \texttt{Music} type that Haskore has defined. Note that the tuple in the argument has the same type as the elements of a \texttt{ChordProgression}
