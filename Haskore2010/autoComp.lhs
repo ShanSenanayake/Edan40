@@ -41,6 +41,9 @@ The \texttt{Music} datatype in Haskore is what glues the music in our program to
 \end{description}
 As stated above there are a few more things that the \texttt{Music} datatype can do but we have only used the ones listed here.
 
+\section{Musical Theory}
+
+
 \section{AutoComp}
 In this section we we will describe the design and functionality of our program in Literate Haskell format.
 \begin{verbatimtab}
@@ -55,7 +58,7 @@ In the first line of the code above we simply define the source code as our modu
 We have defined some types in our program in order to make the types of functions more easily read and understandable.
 \begin{verbatimtab}
 
-> data BassStyle = Basic | Calypso | Boogie deriving (Eq)
+> type BassStyle = [(Int,Dur)]
 > type Scale = [Pitch]
 > majorScale = [0,2,4,5,7,9,11]
 > type ChordProgression = [(PitchClass,Dur)]
@@ -66,7 +69,7 @@ We have defined some types in our program in order to make the types of function
 
 \end{verbatimtab}
 \begin{description}
-\item{\texttt{BassStyle}} is a type used along with pattern matching to determine which bassline to play. We were given three different bassline to implement and therefore we chose to have three different values to our the datatype \texttt{Bassline} namely \texttt{Basic}, \texttt{Calypso} and \texttt{Boogie}.
+\item{\texttt{BassStyle}} is a type used to determine which bassline to play. The type is a list of tuples which denotes the pattern of a bass line. The first element in these tuples denotes the index of the tone to play in the scale and the second element denotes the duration for which the tone should play. Since a rest can not be represented as an index in the scale we have chosen to denote a rest by the index \texttt{-1}.
 \item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone, this will be explained in more detail in the \texttt{generatePitchScale}.
 \item{\texttt{majorScale}} is the origin scale of the key, this is the only scale we will need and it will be explained in more detail in \texttt{generatePitchScale}.
 
@@ -74,10 +77,18 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{ChordPatternInPitchClassValue}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
 \item{\texttt{Range}} is a tuple of two elements of type \texttt{Pitch} objects which define the range of where a chord should be placed.
 \item{\texttt{ChordPattern}} is a list of three \texttt{Pitch} objects which determines a chord.
-
-\item{\texttt{Range}} is a tuple of two elements of type \texttt{Int} which gives the range of the chords in \texttt{AbsPitch} value.
-\item{}
 \end{description}
+
+We were given three different bass line patterns called Basic, Boogie and Calypso. We have stored these patterns in the variables below. The type of these variables are \texttt{BassStyle}.
+
+\begin{verbatimtab}
+
+> basic, boogie, calypso :: BassStyle
+> basic = [(0,hn),(4,hn)]
+> boogie = [(-1,qn),(0,en),(2,en)]
+> calypso = [(0,en),(4,en),(5,en),(4,en)]
+
+\end{verbatimtab}
 
 \subsection{BassLine}
 The first task of our program was to generate three types of bass lines depending on user input. To generate these bass lines we decided to make three functions which returns infinite lists of the three bass lines.
