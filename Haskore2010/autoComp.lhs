@@ -42,7 +42,9 @@ The \texttt{Music} datatype in Haskore is what glues the music in our program to
 As stated above there are a few more things that the \texttt{Music} datatype can do but we have only used the ones listed here.
 
 \section{Musical Theory}
+The task given to us is quite limiting on the musical front making us able to do certain shortcuts. One of the main shortcuts we have done in the program is that we do not denote the harmonic quality of the chords, both in the chord progression or in the chords themselves. This can be a bit non intuitive from a readers point of view (or a musician). However since the program itself has no need for the denotation for harmonic qualities we chose to do this optimization. 
 
+The reason behind this optimization is that the scale of the song will denote the quality of the chord that fits in the song. For instance if we have a C Major scale in the song (like Twinkle) the tones we can use freely are C, D, E, F, G, A and B.  If we then want the chord D for instance the program will return the tones (D,F,A) which fit in the scale which in this case is a D Minor chord. In similair we will get a G Major if we try the G chord (G,B,D). This makes it fully sufficient to only have the basic tones to denote a chord.
 
 \section{AutoComp}
 In this section we we will describe the design and functionality of our program in Literate Haskell format.
