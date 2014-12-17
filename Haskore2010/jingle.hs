@@ -37,6 +37,6 @@
  progression4 = [(D,bn),(A,wn),(D,wn)]
  progression5 = [(D,wn),(G,wn),(D,wn),(G,wn)]
  progression = progression1 ++ progression1 ++ progression2 ++ progression3 ++ progression4 ++ progression3 ++ progression4
- jingleBasic   = Tempo 4 (jingle :=: autoComp Basic (G, Major) progression)
- jingleCalypso = Tempo 4 (jingle :=: autoComp Calypso (G, Major) progression)
- jingleBoogie  = Tempo 4 (jingle :=: autoComp Boogie (G, Major) progression)
+ jingleBasic   = Tempo 4 (jingle :=: autoComp basic (G, Major) progression)
+ jingleCalypso = Tempo 4 (jingle :=: autoComp calypso (G, Major) progression)
+ jingleBoogie  = Tempo 4 (jingle :=: autoComp boogie (G, Major) progression)

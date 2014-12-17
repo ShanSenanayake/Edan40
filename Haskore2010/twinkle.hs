@@ -27,6 +27,6 @@
  progression1 = [(C,wn),(F,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn)]
  progression2 = [(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn),(C,hn),(G,hn)]
  progression = progression1 ++ progression2 ++ progression1
- twinkleBasic   = Tempo 2 (twinkle :=: autoComp Basic (C, Major) progression)
- twinkleCalypso = Tempo 2 (twinkle :=: autoComp Calypso (C, Major) progression)
- twinkleBoogie  = Tempo 2 (twinkle :=: autoComp Boogie (C, Major) progression)
+ twinkleBasic   = Tempo 2 (twinkle :=: autoComp basic (C, Major) progression)
+ twinkleCalypso = Tempo 2 (twinkle :=: autoComp calypso (C, Major) progression)
+ twinkleBoogie  = Tempo 2 (twinkle :=: autoComp boogie (C, Major) progression)

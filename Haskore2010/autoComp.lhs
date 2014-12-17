@@ -49,10 +49,11 @@ In this section we we will describe the design and functionality of our program 
 \begin{verbatimtab}
 
 > module AutoComp where
-> import Haskore 
+> import Haskore
+> import Data.Ratio 
 
 \end{verbatimtab}
-In the first line of the code above we simply define the source code as our module AutoComp. The second line simply loads Haskore so that we can utilize the library.
+In the first line of the code above we simply define the source code as our module AutoComp. The second line simply loads Haskore so that we can utilize the library and the third line imports a package needed for working with durations of notes.
 
 \subsection{Types}
 We have defined some types in our program in order to make the types of functions more easily read and understandable.
@@ -79,63 +80,44 @@ We have defined some types in our program in order to make the types of function
 \item{\texttt{ChordPattern}} is a list of three \texttt{Pitch} objects which determines a chord.
 \end{description}
 
-We were given three different bass line patterns called Basic, Boogie and Calypso. We have stored these patterns in the variables below. The type of these variables are \texttt{BassStyle}.
+
+\subsection{BassLine}
+The first task of our program was to generate a bass line from a given pattern. We were given three different bass line patterns called Basic, Boogie and Calypso. We have stored these patterns in the variables below. The type of these variables are \texttt{BassStyle}. Since we want to be able to create arbitrarily long bass lines we have chosen to use \texttt{cycle} in order to get the list of bass patterns as infinite lists.
+
+
 
 \begin{verbatimtab}
 
 > basic, boogie, calypso :: BassStyle
-> basic = [(0,hn),(4,hn)]
-> boogie = [(-1,qn),(0,en),(2,en)]
-> calypso = [(0,en),(4,en),(5,en),(4,en)]
+> basic = cycle [(0,hn),(4,hn)]
+> calypso = cycle [(-1,qn),(0,en),(2,en)]
+> boogie = cycle [(0,en),(4,en),(5,en),(4,en)]
 
 \end{verbatimtab}
 
-\subsection{BassLine}
-The first task of our program was to generate three types of bass lines depending on user input. To generate these bass lines we decided to make three functions which returns infinite lists of the three bass lines.
-\begin{verbatimtab}
-
-> basicBassLine :: Int->  [NoteAttribute]-> Scale -> [Music]
-> basicBassLine 0 vol m = (Note  (m!!0) hn vol):(basicBassLine 4 vol m)
-> basicBassLine 4 vol m = (Note  (m!!4) hn vol):(basicBassLine 0 vol m)
-> basicBassLine _ vol m = []
-
-
-> calypsoBassLine ::  Int-> [NoteAttribute]-> Scale -> [Music]
-> calypsoBassLine (-1) vol m = (enr):(enr):(calypsoBassLine 0 vol m)
-> calypsoBassLine 0 vol m = (Note (m!!0) en vol):(calypsoBassLine 2 vol m)
-> calypsoBassLine 2 vol m = (Note (m!!2) en vol):(calypsoBassLine (-1) vol m)
-> calypsoBassLine _ vol m = []
-
-
-> boogieBassLine :: Int->  [NoteAttribute]-> Scale -> [Music]
-> boogieBassLine 0 vol m = (Note (m!!0) en vol):(Note (m!!4) en vol):
-> 	(boogieBassLine 5 vol m)
-> boogieBassLine 5 vol m = (Note (m!!5) en vol):(Note (m!!4) en vol):
-> 	(boogieBassLine 0 vol m)
-> boogieBassLine _ vol m = []
-
-\end{verbatimtab}
-The three bass line functions takes three arguments an \texttt{Int}, a list of \texttt{NoteAttribute} and a \texttt{Scale}. The first argument is an index used in the \texttt{Scale} and makes a music object out of it, if the index is negative then it creates a \texttt{Rest}. If the index is not negative it selects the tone that should be played from the available tones defined by the scale. The second argument decides the volume of the music object. The third argument the scale in which the bass line should play in.\\
-In the code snipped above we have used some macros defined is Haskore. 
+In the code below we have used some macros defined is Haskore. 
 
 \begin{description}
 \item[\texttt{hn}] is macro that defines the duration \texttt{Dur} of a half-note.
-\item[\texttt{enr}] is macro that defines an eight-note rest.
 \item[\texttt{en}]is macro that defines the duration \texttt{Dur} of an eight-note.
 \end{description}
 To know how long a certain bass line should play in a certain scale we needed an function which decides how many elements take. The function is defined below.
 \begin{verbatimtab}
 
 > bassLine :: BassStyle ->Dur -> [NoteAttribute]->Scale-> Music
-> bassLine Basic dur vol = line . take (ceiling  (2*(rtof dur))) 
->	. basicBassLine 0 vol
-> bassLine Calypso dur vol = line . take (ceiling(8*(rtof dur))) 
->	. calypsoBassLine (-1) vol
-> bassLine Boogie dur vol = line . take (ceiling(8*(rtof dur))) 
->	. boogieBassLine 0 vol
+> bassLine (x:xs) dur vol scale
+> 	| (numerator dur) <= 0 = Rest 0
+> 	| i == -1 = (Rest d) :+: (bassLine xs (dur-d) vol scale)
+> 	| otherwise = (Note (scale!!i) d vol) :+: (bassLine xs (dur-d) vol scale)
+> 		where 
+> 			i = fst x
+> 			d = snd x
 
 \end{verbatimtab}
-The function above takes four arguments. The first argument is used to decide which bass line should be played. The second argument determines for how long a bass line should be played and it is a rational number in terms of how many bars that should be played. Depending on the bass line we take different amounts of notes since all of them do not return the same thing. Since \texttt{Dur} is a \texttt{Ratio Int} we need the function \texttt{rtof} which takes a \texttt{Ratio Int} and returns a float, using this we can convert to an \texttt{Int} using the function \texttt{ceiling} so the function \texttt{take} will work. The third argument decides the volume of the bassline and finally the fourth argument decides which scale the bass line should be played in.\\
+The function above takes four arguments. The first argument is used to decide which bass line should be played. The second argument determines for how long a bass line should be played and it is a rational number in terms of how many bars that should be played. Depending on the bass line we need to take a different number of elements from their pattern lists. To do this we take elements until the sum of the taken elements equals the total duration of the bass line. If we cannot take elements from the bass line patterns so that the sum of those elements' durations equals the total duration we take one element more so that we get a longer bass line than the song. We do this so that we will have a bass line that plays at least for the entirety of the song. The third argument decides the volume of the bassline and finally the fourth argument decides which scale the bass line should be played in.
+
+As can be seen in the code snippet above, use the index given in the tuples of the bass lines to pick out the right tone to play from the scale. As can also be seen we create a rest if the index is \texttt{-1} and we continue to take notes as long as the duration is greater than zero.
+
 To create a bass line we see that we need a scale, to generate this scale takes us to the next function that we have defined.
 
 
