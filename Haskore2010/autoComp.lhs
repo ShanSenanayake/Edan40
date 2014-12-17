@@ -154,7 +154,8 @@ Using all of the functions above we can combine them and create the \texttt{auto
 \begin{verbatimtab}
 
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music
-> autoBass style key cprog = foldl (\acc (c,d) -> acc :+: ((bassLine style d [Volume 50] 
+> autoBass style key cprog = foldl (\acc (c,d) -> 
+>	acc :+: ((bassLine style d [Volume 50] 
 >	(generatePitchScale key 3 c)))) (Rest 0) cprog 
 
 \end{verbatimtab}
@@ -176,7 +177,8 @@ This function gets the three basic tones for a given chord in a key. We utilize 
 \begin{verbatimtab}
 
 > generateChordRange :: Range -> ChordPatternInPitchClassValue  -> [Pitch]
-> generateChordRange (low,high) ch = [pitch c | c <- [(absPitch low)..(absPitch high)] , elem(c `mod` 12) ch]
+> generateChordRange (low,high) ch = 
+>	[pitch c | c <- [(absPitch low)..(absPitch high)] , elem(c `mod` 12) ch]
 
 
 
@@ -196,7 +198,8 @@ Now that we have a bunch of \texttt{ChordPattern} objects to compare we can star
 \begin{verbatimtab}
 
 > optimiseLength :: ChordPattern -> [ChordPattern] -> ChordPattern
-> optimiseLength prev chords = snd $ foldr1 pick [(scoreChord prev c, c) | c <- chords]
+> optimiseLength prev chords = snd $ foldr1 pick 
+>	[(scoreChord prev c, c) | c <- chords]
 >	where pick a@(sa, _) b@(sb, _)
 >		| sa > sb   = b
 >		| otherwise = a
