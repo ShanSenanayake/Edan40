@@ -14,12 +14,12 @@
 %\tableofcontents
 
 \section{Introduction}
-In this assigment we have constructed a program in Literate Haskell that creates the accompaniment for a given melody and chord progression. The accompaniment consists of two parts a bass line and a chord voicing. There are three bass lines to choose between, namely, basic bass, calypso bass and boogie bass. The chord voicing automatically generates the "best" version of a chord in the chord progression. The "best" chord is determined by looking at the notes in the triad of the chord an on the chord played previously. \\
+In this assigment we have constructed a program in Literate Haskell that creates the accompaniment for a given melody and chord progression. The accompaniment consists of two parts, a bass line and a chord voicing. There are three bass lines to choose between, namely, basic bass, calypso bass and boogie bass. The chord voicing automatically generates the "best" version of a chord in the chord progression. The "best" chord is determined by looking at the notes in the triad of the chord and on the chord played previously. \\
 We have constructed two other files in Haskell and Haskore format that includes chord progression and melody for two different songs, Twinkle twinkle and Jingle bells. \\
 This report will serve as documentation and explanation of the program that we have constructed.
 
 \section{Haskore}
-Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell. Since this assignment is built on Haskore some Haskore datatypes and functionally has to be explained before one can understand our program. \\
+Our program is written as a module called AutoComp and it utilizes Haskore which is a music library for Haskell. Since this assignment is built on Haskore some Haskore datatypes and functionality has to be explained before one can understand our program. \\
 \begin{description}
 \item{\texttt{PitchClass}} is a datatype which represents the twelve basic tones for music.
 \item{\texttt{Octave}} is a type that contains an \texttt{Int} which represents which octave the tone belongs to, that means which overtone the original tone is.
@@ -42,7 +42,7 @@ The \texttt{Music} datatype in Haskore is what glues the music in our program to
 As stated above there are a few more things that the \texttt{Music} datatype can do but we have only used the ones listed here.
 
 \section{Musical Theory}
-The task given to us is quite limiting on the musical front making us able to do certain shortcuts. One of the main shortcuts we have done in the program is that we do not denote the harmonic quality of the chords, both in the chord progression or in the chords themselves. This can be a bit non intuitive from a readers point of view (or a musician). However since the program itself has no need for the denotation for harmonic qualities we chose to do this optimization. 
+The task given to us is quite limiting on the musical front making us able to do certain shortcuts. One of the main shortcuts we have done in the program is that we do not denote the harmonic quality of the chords, both in the chord progression or in the chords themselves. This can be a bit non intuitive from a readers point of view (or a musician). However since the program itself has no need for the notation of harmonic qualities we chose to do this optimization. 
 
 The reason behind this optimization is that the scale of the song will denote the quality of the chord that fits in the song. For instance if we have a C Major scale in the song (like Twinkle) the tones we can use freely are C, D, E, F, G, A and B.  If we then want the chord D for instance the program will return the tones (D,F,A) which fit in the scale which in this case is a D Minor chord. In similair we will get a G Major if we try the G chord (G,B,D). This makes it fully sufficient to only have the basic tones to denote a chord.
 
@@ -55,7 +55,7 @@ In this section we we will describe the design and functionality of our program 
 > import Data.Ratio 
 
 \end{verbatimtab}
-In the first line of the code above we simply define the source code as our module AutoComp. The second line simply loads Haskore so that we can utilize the library and the third line imports a package needed for working with durations of notes.
+In the first line of the code above we simply define the source code as our module AutoComp. The second line simply loads Haskore so that we can utilize the library and the third line imports a package needed for working with durations of notes and the type \texttt{Ratio Int}.
 
 \subsection{Types}
 We have defined some types in our program in order to make the types of functions more easily read and understandable.
@@ -73,10 +73,10 @@ We have defined some types in our program in order to make the types of function
 \end{verbatimtab}
 \begin{description}
 \item{\texttt{BassStyle}} is a type used to determine which bassline to play. The type is a list of tuples which denotes the pattern of a bass line. The first element in these tuples denotes the index of the tone to play in the scale and the second element denotes the duration for which the tone should play. Since a rest can not be represented as an index in the scale we have chosen to denote a rest by the index \texttt{-1}.
-\item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone, this will be explained in more detail in the \texttt{generatePitchScale}.
-\item{\texttt{majorScale}} is the origin scale of the key, this is the only scale we will need and it will be explained in more detail in \texttt{generatePitchScale}.
+\item{\texttt{Scale}} is a list of seven \texttt{Pitch} objects which determines the scale of the song beginning on a certain tone, this will be explained in more detail in the \texttt{generatePitchScale} function.
+\item{\texttt{majorScale}} is the origin scale of the key, this is the only scale we will need and it will be explained in more detail in the \texttt{generatePitchScale} function.
 
-\item{\texttt{ChordProgression}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. For example a song that goes in a C major scale has the tones C, D, E, F, G, A, B that defines it. When taking a C chord, the only chord that fits in the scale is a C major chord since the C minor will make the song clash (skära sig). The same is true for a D chord, this will generate a D minor chord which will fit in the scale. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{ChordProgressIon}.  Since the task given only needs to be able to handle major scale songs (which go in one scale) and only represent Major or Minor chords.
+\item{\texttt{ChordProgression}} consists of a list of tuples containing \texttt{PitchClass} and \texttt{Dur} which corresponds to the chord and the duration. There is no reason to have Major or Minor on the chord since it will be determined by the scale either way. For example a song that goes in a C major scale has the tones C, D, E, F, G, A, B that defines it. When taking a C chord, the only chord that fits in the scale is a C major chord since the C minor will make the song clash (skära sig). The same is true for a D chord, this will generate a D minor chord which will fit in the scale. This makes it fully sufficient to only have a \texttt{PitchClass} which represents a chord in the \texttt{ChordProgression}.  Since the task given only needs to be able to handle major scale songs (which go in one scale) and only represent Major or Minor chords.
 \item{\texttt{ChordPatternInPitchClassValue}} is a list of three \texttt{Int} objects which represents a basic triad of a chord.
 \item{\texttt{Range}} is a tuple of two elements of type \texttt{Pitch} objects which define the range of where a chord should be placed.
 \item{\texttt{ChordPattern}} is a list of three \texttt{Pitch} objects which determines a chord.
@@ -97,7 +97,7 @@ The first task of our program was to generate a bass line from a given pattern. 
 
 \end{verbatimtab}
 
-In the code below we have used some macros defined is Haskore. 
+In the code above we have used some macros defined is Haskore. 
 
 \begin{description}
 \item[\texttt{hn}] is macro that defines the duration \texttt{Dur} of a half-note.
@@ -107,18 +107,15 @@ To know how long a certain bass line should play in a certain scale we needed an
 \begin{verbatimtab}
 
 > bassLine :: BassStyle ->Dur -> [NoteAttribute]->Scale-> Music
-> bassLine (x:xs) dur vol scale
+> bassLine ((i,d):xs) dur vol scale
 > 	| (numerator dur) <= 0 = Rest 0
 > 	| i == -1 = (Rest d) :+: (bassLine xs (dur-d) vol scale)
 > 	| otherwise = (Note (scale!!i) d vol) :+: (bassLine xs (dur-d) vol scale)
-> 		where 
-> 			i = fst x
-> 			d = snd x
 
 \end{verbatimtab}
 The function above takes four arguments. The first argument is used to decide which bass line should be played. The second argument determines for how long a bass line should be played and it is a rational number in terms of how many bars that should be played. Depending on the bass line we need to take a different number of elements from their pattern lists. To do this we take elements until the sum of the taken elements equals the total duration of the bass line. If we cannot take elements from the bass line patterns so that the sum of those elements' durations equals the total duration we take one element more so that we get a longer bass line than the song. We do this so that we will have a bass line that plays at least for the entirety of the song. The third argument decides the volume of the bassline and finally the fourth argument decides which scale the bass line should be played in.
 
-As can be seen in the code snippet above, use the index given in the tuples of the bass lines to pick out the right tone to play from the scale. As can also be seen we create a rest if the index is \texttt{-1} and we continue to take notes as long as the duration is greater than zero.
+As can be seen in the code snippet above, use the index given in the tuples of the bass lines to pick out the right tone to play from the scale. As can also be seen we create a rest if the index is \texttt{-1} and we continue to take notes as long as the remaining total duration is greater than zero.
 
 To create a bass line we see that we need a scale, to generate this scale takes us to the next function that we have defined.
 
@@ -131,7 +128,7 @@ To create a bass line we see that we need a scale, to generate this scale takes 
 >	((12*octave + key)+) (shift ((pitchClass start) - key) majorScale))
 
 \end{verbatimtab}
-This function takes three arguments. The first argument is a \texttt{Key}, which is a Haskore type which represents the \texttt{PitchClass} in an \texttt{Int}. The rest of the arguments are an \texttt{Octave} and a \texttt{PitchClass} and the function returns a \texttt{Scale}. In the assigment we were given a bunch of different scales to apply depending on where on the scale the tone for a chord was. We decided to disregard most of this since the only thing the "different" scales gave was a shifting of the orginal keys scale starting on the tone for a certain scale, the easiest way to explain this i by giving an example. In the Twinkle Twinkle song we have a C Major key, this gives us the scale C, D, E, F, G, A, B. The scales given to us (ie Ionian, Dorian etc) determines which starting point the key scale should be in. For example D will give us the same scale starting in D (D, E, F, G, A, B, C).  To obtain this we decided to make a helper function shift.
+This function takes three arguments. The first argument is a \texttt{Key}, which is a Haskore type which represents the \texttt{PitchClass} in an \texttt{Int}. The rest of the arguments are an \texttt{Octave} and a \texttt{PitchClass} and the function returns a \texttt{Scale}. In the assigment we were given a bunch of different scales to apply depending on where on the scale the tone for a chord was. We decided to disregard most of this since the only thing the "different" scales gave was a shifting of the orginal keys scale starting on the tone for a certain scale, the easiest way to explain this is by giving an example. In the Twinkle Twinkle song we have a C Major key, this gives us the scale C, D, E, F, G, A, B. The scales given to us (ie Ionian, Dorian etc) determines which starting point the key scale should be in. For example D will give us the same scale starting in D (D, E, F, G, A, B, C).  To obtain this we decided to make a helper function shift.
 
 \begin{verbatimtab}
 
@@ -142,7 +139,7 @@ This function takes three arguments. The first argument is a \texttt{Key}, which
 >	 | otherwise = shift n (xs++[12+x])
 
 \end{verbatimtab}
-The function shift takes the original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the new tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. The first case in the guards \texttt{n < 0 = shift (n+12) list} is needed to ensure that we get the right number which represents the number in the scale. Since we always count from the origin tone and forward this case will ensure that if the origin tone has a larger \texttt{pitchClass} value than the new tone, we get the next overtone of the new tone. \\
+The function shift takes the tone on which the scale shall start and original scale (in every case the \texttt{majorScale} defined above) and shifts it until it hits the new tone. Since the original scale determines how many steps from the origin tone (which is the key) it takes, we had to subtract the origin tone with our new tone to get the difference and then shift the list until it finds it. This gives us a "new" scale which we can apply to the origin tone and get a scale which begins with the new tone. The first case in the guards \texttt{n < 0 = shift (n+12) list} is needed to ensure that we get the right number which represents the number in the scale. Since we always count from the origin tone and forward this case will ensure that if the origin tone has a larger \texttt{pitchClass} value than the new tone, we get the next overtone of the new tone. \\
 When the shifting is done we take the key in the correct octave inputted above to get a sufficient scale. \\
 Using all of the functions above we can combine them and create the \texttt{autoBass} function.
 
@@ -150,8 +147,11 @@ Using all of the functions above we can combine them and create the \texttt{auto
 
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music
 > autoBass style key cprog = foldl (\acc (c,d) -> 
->	acc :+: ((bassLine style d [Volume 50] 
->	(generatePitchScale key 3 c)))) (Rest 0) cprog 
+>	acc :+: (bassLineMusic (scale c) d)) (Rest 0) cprog 
+> 		where
+> 			scale note = generatePitchScale key 3 note
+> 			bassLineMusic theScale dur = 
+> 				bassLine style dur [Volume 50] theScale
 
 \end{verbatimtab}
 The \texttt{autoBass} function is the main function of the bass lines. It takes all the functions above and applies it to the \texttt{Chordprogression} for each individual "chord" and then combines it all into \texttt{Music}.
@@ -206,8 +206,8 @@ Now that we have a bunch of \texttt{ChordPattern} objects to compare we can star
 
 \end{verbatimtab}
 To pick out the "best" \texttt{ChordPattern} out of our list of \texttt{ChordPattern} objects we have to first score them and then evaluate all of them. \\
-The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{ChordPattern} and a potential next \texttt{ChordPattern}  and returns a value for that comparison . The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{ChordPattern} objects and then subtracting the sum of the potential next and previous \texttt{ChordPattern}.\\
-Given the scoring in list of tuple we fold the list with a function \texttt{pick} which selects the \texttt{ChordPattern}  which has the least score.
+The scoring is done by the function \texttt{scoreChord} which takes the previous \texttt{ChordPattern} and a potential next \texttt{ChordPattern}  and returns a value for that comparison. The scoring is simple. It just adds all the \texttt{AbsPitch} value of each individual tone in the two comparing \texttt{ChordPattern} objects and then subtracting the sum of the potential next and previous \texttt{ChordPattern}.\\
+Given the scoring in list of tuples we fold the list with a function \texttt{pick} which selects the \texttt{ChordPattern}  which has the least score.
 
 \begin{verbatimtab}
 
@@ -239,7 +239,7 @@ The \texttt{chordToMusic} function above takes a tuple of a \texttt{ChordPattern
 > 	(generateChordRange range (getBasicTriad key c))
 
 \end{verbatimtab}
-The function \texttt{generateMusicChord} calls several functions that we have defined above in order to generate a \texttt{Music} object which will represent the chordline in a song. It is created from a \texttt{Key} and a  \texttt{ChordProgression}. \texttt{generateCandidates}  uses a couple of help functions to do this task, namely \texttt{pickBestChords} which picks the best chords to play from a \texttt{ChordProgression}, \texttt{Range} and \texttt{Key}. To do this it has to first generate all candidates for the \texttt{ChordProgression} and then pick the best ones out depending on the previous chord played. \texttt{generateCandidates} takes a \texttt{Range}, \texttt{Key} and a \texttt{PitchClass} and generates all potential chord-candidates from the given \texttt{Key} in the given \texttt{Range}. 
+The function \texttt{generateMusicChord} calls several functions that we have defined above in order to generate a \texttt{Music} object which will represent the chordline in a song. It is created from a \texttt{Key} and a  \texttt{ChordProgression}. \texttt{generateCandidates}  uses a couple of help functions to do this task, namely \texttt{pickBestChords} which picks the best chords to play from a \texttt{[PitchClass]}, which denotes the list of chords that shall be played, a \texttt{Range} and a \texttt{Key}. To do this it has to first generate all candidates for the chords and then pick the best ones out depending on the previous chord played. \texttt{generateCandidates} takes a \texttt{Range}, \texttt{Key} and a \texttt{PitchClass} and generates all potential chord-candidates for the chord represented by the \texttt{PitchClass} from the given \texttt{Key} in the given \texttt{Range}. 
 \begin{verbatimtab}
 
 > autoChord :: Key -> ChordProgression -> Music
@@ -254,7 +254,7 @@ The function \texttt{autoChord} is the main function for the chord voicing. It t
 > mKeyToKey (p,Minor) = ((pitchClass p) + 3) `mod` 12
 
 \end{verbatimtab}
-The \texttt{mKeyToKey} function above to transform a certain representation of the key into Haskell's representation of a key. It thus take an argument \texttt{MusicalKey} which is the representation of a key given in the assignment description and transforms it into Haskell's type \texttt{Key}.
+The \texttt{mKeyToKey} function above to transform a certain representation of the key (the assignments's representation) into Haskell's representation of a key. It thus take an argument \texttt{MusicalKey} which is the representation of a key given in the assignment description and transforms it into Haskell's type \texttt{Key}.
 \begin{verbatimtab}
 
 > autoComp :: BassStyle -> MusicalKey -> ChordProgression->Music
